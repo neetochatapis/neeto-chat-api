@@ -1,0 +1,150 @@
+---
+title: "Troubleshooting"
+description: "Fixes for a NeetoChat MCP connection that does not work."
+---
+
+Which checks apply depends on how you connected, so start with the section that
+matches your client.
+
+## Claude and ChatGPT
+
+These connect over OAuth and have no config file, so there is no key or URL typo
+to hunt for after the connector is created.
+
+<AccordionGroup>
+  <Accordion title="The connector will not connect">
+    Check the server URL on the connector is exactly
+    `https://connect.neetochat.com/mcp/messages`, with no trailing path. Remove
+    the connector and add it again if it is wrong.
+  </Accordion>
+  <Accordion title="The sign in ends without connecting">
+    The first screen asks for a workspace subdomain, not a URL. For
+    `acme.neetochat.com`, enter `acme`. See
+    [Workspace subdomain](/getting-started/workspace-subdomain).
+
+    You also need an account in that workspace. Signing in with an email that
+    does not belong to it will not produce a working connection.
+  </Accordion>
+  <Accordion title="It connected, but the assistant will not use it">
+    Name NeetoChat in the prompt, for example "Who is in my NeetoChat workspace?"
+    Check the connector is enabled for the conversation, and that your
+    organization has not restricted it centrally.
+  </Accordion>
+</AccordionGroup>
+
+## Claude Code, Codex, Cursor, Gemini CLI, VS Code and Windsurf
+
+These read a config file, and most failures are in it. The shapes differ per
+client, so check yours on [Connect your assistant](/mcp/connect).
+
+<AccordionGroup>
+  <Accordion title="The server does not appear at all">
+    Confirm you edited the file that client actually reads:
+
+    | Client | File | Top-level key |
+    | --- | --- | --- |
+    | Claude Code | `~/.claude.json` | `mcpServers` |
+    | Codex | `~/.codex/config.toml` | `[mcp_servers.<name>]` |
+    | Cursor | `~/.cursor/mcp.json` | `mcpServers` |
+    | Gemini CLI | `~/.gemini/settings.json` | `mcpServers` |
+    | VS Code | `.vscode/mcp.json` | `servers` |
+    | Windsurf | `~/.codeium/windsurf/mcp_config.json` | `mcpServers` |
+
+    VS Code nests servers under `servers`, not `mcpServers`. Codex uses TOML
+    rather than JSON. Restart the client after saving, and for Windsurf enable
+    the server under **Settings → Cascade → MCP Servers**.
+  </Accordion>
+  <Accordion title="The server is listed but never responds">
+    Check the URL field name for your client. Gemini CLI needs `httpUrl`, since
+    it reserves `url` for SSE. Windsurf needs `serverUrl`. The others use `url`.
+
+    Then check the URL itself is `https://connect.neetochat.com/mcp/messages`.
+  </Accordion>
+  <Accordion title="It asks you to sign in when you meant to use a key">
+    The client falls back to OAuth when it finds no credential. Add the
+    `headers` block with `Authorization: Bearer YOUR_API_KEY`, or for Codex set
+    `bearer_token_env_var` to the name of an environment variable holding the
+    key and export it in the environment Codex runs in.
+  </Accordion>
+  <Accordion title="It sends a key when you meant to sign in">
+    The opposite case. Remove the `headers` block entirely, restart the client,
+    and approve the sign in when it prompts. For Claude Code run `/mcp` and pick
+    the server; for Codex run `codex mcp login neetochat`.
+  </Accordion>
+  <Accordion title="Windsurf shows no NeetoChat tools">
+    Windsurf allows at most 100 tools across every connected server. Disable
+    servers you are not using and reload.
+  </Accordion>
+  <Accordion title="VS Code does not offer the server">
+    It needs VS Code 1.99 or later with GitHub Copilot in Agent mode. Agent mode
+    is what exposes MCP tools; Ask mode does not.
+  </Accordion>
+</AccordionGroup>
+
+## Anything that reports an authentication failure
+
+<AccordionGroup>
+  <Accordion title="The API key is rejected">
+    Copy the key again from workspace settings; a truncated or wrapped key fails
+    the same way as a wrong one. Check it has not been revoked, and that it
+    belongs to the workspace you are trying to reach, since a key is valid in one
+    workspace only.
+
+    The header is `Authorization: Bearer YOUR_API_KEY`. The `X-Api-Key` header
+    the [REST API](/getting-started/authentication) uses is not what MCP clients
+    send.
+  </Accordion>
+  <Accordion title="An OAuth connection stopped working">
+    Access is revoked by removing the connector, and it is also lost if your
+    NeetoChat account is deactivated. Remove the connector and add it again to
+    sign in fresh.
+  </Accordion>
+  <Accordion title="A tool is refused for a missing permission">
+    The connection was authorized without **Create and update** or **Delete**, so
+    a tool that needs one is refused with a message naming what is missing.
+    Reconnect and tick that box on the **Authorize access** screen. See
+    [What you approve](/mcp/authentication#what-you-approve).
+
+    An API key connection is not affected. It is granted every permission the
+    picker offers, so there is nothing left to tick and nothing to refuse.
+  </Accordion>
+</AccordionGroup>
+
+## The assistant cannot find something you can see
+
+<AccordionGroup>
+  <Accordion title="Check the workspace">
+    One OAuth connection can cover several workspaces, and tools run against the
+    default unless you name one. Ask "Which NeetoChat workspaces can you see?",
+    then name the one you mean in the prompt.
+
+    An API key connection reaches exactly one workspace, the one the key belongs
+    to.
+  </Accordion>
+  <Accordion title="Check your own permissions">
+    Over OAuth every tool runs with your permissions, so a record outside your
+    reach is missing from listings rather than returned. Viewing team members
+    needs a role that can view them, and inviting, updating or deactivating needs
+    one that can manage them.
+
+    If you connected with an API key, no user permissions apply, so this is not
+    the cause.
+  </Accordion>
+</AccordionGroup>
+
+## Adding people fails
+
+`CreateTeamMember` is all-or-nothing: if any address is malformed or the role is
+not one your workspace has, nobody is added. The error names the addresses at
+fault, or lists the roles that exist. Nothing changed, so it is safe to fix and
+ask again.
+
+Role names are case-sensitive and must match a role on the Roles page in
+workspace settings.
+
+## Still stuck
+
+Reach us through the [help center](https://help.neetochat.com), or at
+[support@neetochat.com](mailto:support@neetochat.com). Ask the assistant to
+repeat the exact error it got from NeetoChat, and include that along with your
+client and whether you connected over OAuth or with an API key.

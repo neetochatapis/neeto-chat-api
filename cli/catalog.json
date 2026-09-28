@@ -1,0 +1,156 @@
+[
+  {
+    "command": "neetochat doctor",
+    "description": "Check CLI health and connectivity"
+  },
+  {
+    "command": "neetochat login",
+    "description": "Authenticate to NeetoChat via browser"
+  },
+  {
+    "command": "neetochat logout",
+    "description": "Sign out and clear saved credentials",
+    "flags": [
+      {
+        "name": "all",
+        "type": "bool",
+        "default": "false",
+        "description": "Sign out of every saved subdomain"
+      }
+    ]
+  },
+  {
+    "command": "neetochat setup",
+    "description": "Set up NeetoChat for AI coding assistants",
+    "subcommands": [
+      {
+        "command": "neetochat setup claude",
+        "description": "Register NeetoChat plugin with Claude Code"
+      },
+      {
+        "command": "neetochat setup codex",
+        "description": "Add NeetoChat instructions for OpenAI Codex"
+      },
+      {
+        "command": "neetochat setup copilot",
+        "description": "Add NeetoChat instructions for GitHub Copilot"
+      },
+      {
+        "command": "neetochat setup cursor",
+        "description": "Write NeetoChat rules for Cursor IDE"
+      },
+      {
+        "command": "neetochat setup gemini",
+        "description": "Add NeetoChat instructions for Gemini CLI"
+      },
+      {
+        "command": "neetochat setup windsurf",
+        "description": "Write NeetoChat rules for Windsurf IDE"
+      }
+    ]
+  },
+  {
+    "command": "neetochat team-members",
+    "description": "Manage team members",
+    "subcommands": [
+      {
+        "command": "neetochat team-members create",
+        "description": "Invite team members",
+        "flags": [
+          {
+            "name": "emails",
+            "type": "string",
+            "description": "Comma-separated email addresses to invite",
+            "required": true
+          },
+          {
+            "name": "role",
+            "type": "string",
+            "description": "Organization role name for the invited members; e.g. Admin, Standard, Editor, Reviewer (case-sensitive, must match a role in your workspace)",
+            "required": true
+          },
+          {
+            "name": "send-invitation-email",
+            "type": "bool",
+            "default": "true",
+            "description": "Send invitation email"
+          }
+        ]
+      },
+      {
+        "command": "neetochat team-members delete",
+        "description": "Remove a team member"
+      },
+      {
+        "command": "neetochat team-members list",
+        "description": "List team members",
+        "flags": [
+          {
+            "name": "email",
+            "type": "string",
+            "description": "Filter by email address"
+          },
+          {
+            "name": "page",
+            "type": "int",
+            "default": "1",
+            "description": "Page number"
+          },
+          {
+            "name": "page-size",
+            "type": "int",
+            "default": "0",
+            "description": "Items per page (max 100)"
+          }
+        ]
+      },
+      {
+        "command": "neetochat team-members show",
+        "description": "Show a team member"
+      },
+      {
+        "command": "neetochat team-members update",
+        "description": "Update a team member",
+        "flags": [
+          {
+            "name": "email",
+            "type": "string",
+            "description": "New email address"
+          },
+          {
+            "name": "first-name",
+            "type": "string",
+            "description": "First name"
+          },
+          {
+            "name": "last-name",
+            "type": "string",
+            "description": "Last name"
+          },
+          {
+            "name": "role",
+            "type": "string",
+            "description": "Organization role name; e.g. Admin, Standard, Editor, Reviewer (case-sensitive, must match a role in your workspace)"
+          },
+          {
+            "name": "time-zone",
+            "type": "string",
+            "description": "Time zone"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "command": "neetochat update",
+    "description": "Update the CLI to the latest version"
+  },
+  {
+    "command": "neetochat version",
+    "description": "Print the CLI version"
+  },
+  {
+    "command": "neetochat whoami",
+    "description": "Show current authenticated user(s)"
+  }
+]

@@ -1,0 +1,124 @@
+---
+title: "NeetoChat MCP server"
+description: "Let an AI assistant manage your team through the Model Context Protocol."
+---
+
+NeetoChat runs a hosted [Model Context Protocol](https://modelcontextprotocol.io)
+server at `https://connect.neetochat.com/mcp/messages`. Point an assistant at
+that URL and it can answer questions about your workspace in your own words, without
+you writing a request or handling an id.
+
+There is nothing to install and nothing to run. The server is hosted by
+NeetoChat; the assistant connects to it over HTTP.
+
+## What an assistant can do
+
+<CardGroup cols={2}>
+  <Card title="See who has access" icon="magnifying-glass">
+    List the people in a workspace and see each member's role, email and profile.
+  </Card>
+  <Card title="Onboard new members" icon="user-plus">
+    Invite people by email and grant them an organization role in a single request.
+  </Card>
+  <Card title="Update and offboard" icon="user-minus">
+    Change a member's email, name, time zone or role, and deactivate accounts
+    that should no longer have access.
+  </Card>
+  <Card title="Work across workspaces" icon="buildings">
+    One connection can reach every workspace you approved it for. Name the one
+    you mean in the prompt.
+  </Card>
+</CardGroup>
+
+The full list is on the [Tools](/mcp/tools) page.
+
+## MCP vs CLI: which should I use?
+
+NeetoChat's [CLI](/cli/introduction) reaches the same team-member operations
+this server does - list members, invite people, update a profile, and deactivate
+an account. Neither one can grant or revoke access the other cannot, so choose
+on how the work reaches NeetoChat.
+
+### Reach for MCP when
+
+- **The details live in your chat, not in your head.** Paste the thread where
+  three people asked for access and they are invited with the role you name,
+  with no address retyped. The CLI cannot see any of it.
+- **You have not decided the steps yet.** "These contractors finished last week -
+  make sure they are out" means reading the member list, matching it against
+  what you have, and choosing who goes. A command can only carry out a decision
+  you have already made.
+- **One request should cover several steps.** Find who is already in the
+  workspace, invite the missing people with the right role, then read the
+  records back - with no id copied between commands.
+- **The person doing it does not use a terminal.** NeetoChat hosts the server, so
+  there is nothing to install on the machine and nothing to keep updated.
+
+### Reach for the CLI instead when
+
+- **No AI assistant should be in the loop.** An offboarding script or a CI step
+  runs the CLI against a workspace it is already signed in to - no assistant
+  open, no model account, no tokens spent per run. Every call here needs
+  something with model access running.
+- **The output feeds another program.** The CLI prints a bare id for the next
+  command, or the JSON envelope for `jq`, a spreadsheet or your own script. Here
+  you get prose you would have to copy out by hand.
+- **You are working through the whole member list.** Here every page is a
+  separate tool call, and a roster of a few thousand people crowds out the
+  assistant's context. The CLI returns `total_pages` and `total_records` next to
+  the records instead, so a shell loop walks every page unattended and writes
+  each one to a file or into `jq`.
+- **The run has to be repeatable and reviewable.** A command is the artifact: it
+  records exactly what ran, against the same member id with the same flags, and
+  repeats identically. Ask twice here and the assistant may take a different
+  route.
+
+<Tip>
+  You can have both. Run [`neetochat setup claude`](/cli/ai-assistants) and the
+  same assistant you are talking to here can drive the CLI too, so a
+  plain-language request still ends in an exact command you can read, repeat
+  and paste into a script.
+</Tip>
+
+<Warning>
+  Ask your assistant to show you the addresses and the role before it invites or
+  deactivates anyone. These tools act on your live workspace.
+</Warning>
+
+## Prerequisites
+
+- A NeetoChat workspace and your [workspace subdomain](/getting-started/workspace-subdomain).
+- An assistant that supports remote MCP servers. See
+  [Connect your assistant](/mcp/connect) for the ones covered here.
+- Optionally, an API key. It is needed only for workspace-scoped access, since
+  every supported client can connect over OAuth instead. See
+  [Authentication](/mcp/authentication).
+
+## Pick how you connect first
+
+The server takes two kinds of credential, and the choice decides what the
+assistant can reach:
+
+- **OAuth** scopes the connection to you, so the assistant sees what your
+  account sees.
+- **An API key** scopes it to the whole workspace, with no user attached.
+
+That is a permissions boundary rather than a setup preference, so read
+[Authentication](/mcp/authentication) before configuring a client.
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="shield-halved" href="/mcp/authentication">
+    What OAuth and an API key each let the assistant see.
+  </Card>
+  <Card title="Connect your assistant" icon="plug" href="/mcp/connect">
+    Server details and per client setup.
+  </Card>
+  <Card title="Examples" icon="comments" href="/mcp/examples">
+    Prompts that work once you are connected.
+  </Card>
+  <Card title="Tools" icon="wrench" href="/mcp/tools">
+    Every tool the server exposes.
+  </Card>
+</CardGroup>

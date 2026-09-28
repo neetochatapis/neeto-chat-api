@@ -1,0 +1,139 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "NeetoChat Docs",
+  "description": "NeetoChat API docs guide to manage scheduling from external channels",
+  "theme": "mint",
+  "colors": {
+    "primary": "#10B981",
+    "light": "#34D399",
+    "dark": "#059669"
+  },
+  "logo": "/assets/logo.svg",
+  "favicon": "/assets/favicon.ico",
+  "navbar": {
+    "links": [
+      {
+        "label": "Blog",
+        "href": "https://www.neeto.com/neetochat/blog"
+      },
+      {
+        "label": "Help Center",
+        "href": "https://help.neetochat.com"
+      },
+      {
+        "label": "NeetoChat",
+        "href": "https://neetochat.com/"
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/neetohq",
+      "linkedin": "https://www.linkedin.com/company/neeto",
+      "youtube": "https://www.youtube.com/channel/UCoQ3Kv2JdZ51WZJ3QFFcI9g",
+      "slack": "https://www.launchpass.com/neetohq"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "API Reference",
+        "icon": "code",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "icon": "rocket",
+            "pages": [
+              "getting-started/introduction",
+              "getting-started/workspace-subdomain",
+              "getting-started/authentication",
+              "getting-started/pagination",
+              "getting-started/response-codes"
+            ]
+          },
+          {
+            "group": "Team Members",
+            "icon": "user-group",
+            "pages": [
+              "api-reference/team-members/list",
+              "api-reference/team-members/add",
+              "api-reference/team-members/get",
+              "api-reference/team-members/update",
+              "api-reference/team-members/remove"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "CLI",
+        "icon": "rectangle-terminal",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "icon": "rocket",
+            "pages": [
+              "cli/introduction",
+              "cli/installation",
+              "cli/authentication",
+              "cli/output-formats",
+              "cli/ai-assistants",
+              "cli/troubleshooting"
+            ]
+          },
+          {
+            "group": "Commands",
+            "icon": "terminal",
+            "pages": [
+              "cli-reference/overview",
+              "cli-reference/team-members",
+              "cli-reference/utility"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "MCP",
+        "icon": "plug",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "icon": "rocket",
+            "pages": [
+              "mcp/introduction",
+              "mcp/authentication",
+              "mcp/connect",
+              "mcp/examples",
+              "mcp/troubleshooting"
+            ]
+          },
+          {
+            "group": "Reference",
+            "icon": "wrench",
+            "pages": ["mcp/tools"]
+          }
+        ]
+      }
+    ]
+  },
+  "api": {
+    "params": {
+      "expanded": "all"
+    },
+    "playground": {
+      "display": "interactive",
+      "proxy": true
+    },
+    "examples": {
+      "languages": ["curl", "javascript", "python"],
+      "defaults": "all"
+    }
+  },
+  "styling": {
+    "eyebrows": "section",
+    "codeblocks": "system"
+  },
+  "appearance": {
+    "default": "light",
+    "strict": true
+  }
+}

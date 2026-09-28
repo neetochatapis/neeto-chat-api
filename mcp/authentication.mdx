@@ -1,0 +1,148 @@
+---
+title: "Authentication"
+description: "Connect as yourself with OAuth, or as the whole workspace with an API key."
+---
+
+The MCP server accepts two kinds of credential, and the difference is not just
+setup. It decides **what the assistant can see**.
+
+|  | OAuth | API key |
+| --- | --- | --- |
+| Scope | The person who approved it | The whole workspace |
+| Identity | Tied to a NeetoChat user | Tied to nothing and nobody |
+| Set up by | Pasting the server URL | Pasting a key into a config file |
+| Used by | Every client | Every client except Claude and ChatGPT |
+| Reaches several workspaces | Yes, tick them while approving | No, one key is one workspace |
+| Revoked by | Removing the connector | Revoking the key in workspace settings |
+
+Claude and ChatGPT always use OAuth. Claude Code, Codex, Cursor, Gemini CLI, VS
+Code and Windsurf support both, and you choose by what you put in their config
+file: leave the credential out and the client signs you in over OAuth, supply one
+and the client reaches the whole workspace. Both routes hit the same server and
+expose the same [tools](/mcp/tools).
+
+## OAuth, scoped to you
+
+The assistant acts as the person who approved the connection. Every tool call
+runs with that person's permissions, so listings come back filtered to what they
+can see, and a record they cannot open is refused rather than returned.
+
+That makes OAuth the better fit whenever a real person is driving the assistant,
+because the reach of the connection is the reach of that person's account.
+
+Clients that add a server by URL discover everything else on their own. The
+server publishes its OAuth metadata at
+`https://connect.neetochat.com/.well-known/oauth-authorization-server` and
+registers each client automatically, so there is no client id or secret for you
+to create.
+
+| Detail | Value |
+| --- | --- |
+| Grant types | Authorization code with PKCE (`S256`), and refresh token |
+| Scopes | `read`, `write`, `delete`, `offline_access` |
+| Client registration | Dynamic, per [RFC 7591](https://datatracker.ietf.org/doc/html/rfc7591) |
+| Refresh | Refresh tokens are issued, so the connection survives without you signing in again |
+| Revoke | From your assistant by removing the connector, or at the server's revocation endpoint |
+
+Registration also accepts loopback redirect URIs such as
+`http://localhost:8080/callback`. That is what lets a client running on your own
+machine catch the callback, so Claude Code, Codex, Cursor, Gemini CLI, VS Code
+and Windsurf complete the same sign in a browser client does.
+
+### What you approve
+
+The **Authorize access** screen shows what the connection will be allowed to do.
+Two of the four permissions come with every connection; the other two are yours
+to grant.
+
+| Permission | Scope | What it covers | Always granted |
+| --- | --- | --- | --- |
+| Read | `read` | See everything in the selected workspaces. | Yes |
+| Stay connected | `offline_access` | Keep working in the background without asking you to sign in again. | Yes |
+| Create and update | `write` | Add new items and change existing ones. | No, you tick it |
+| Delete | `delete` | Permanently delete items. This cannot be undone. | No, you tick it |
+
+**Read** and **Stay connected** are ticked and cannot be unticked, so every
+connection can read and can refresh itself. **Create and update** and **Delete**
+are the only two you decide on, and leaving both unticked gives you a read-only
+connection.
+
+<Frame caption="The Authorize access screen, with the permission picker above the workspace list.">
+  <img src="/assets/mcp/oauth-authorize.png" alt="'Authorize access' screen showing the workspace and the signed-in email, a 'What this connection can do' picker with Read and Stay connected marked always granted and Create and update and Delete as checkboxes, a 'Workspaces to connect' list with three workspaces, the current one ticked and disabled, and Cancel and Authorize buttons" />
+</Frame>
+
+A tool that needs a permission you did not grant is refused when it is called,
+with a message naming the missing permission, rather than failing quietly. To
+change your mind, connect again and tick the box.
+
+### What you see when you connect
+
+1. **Choose your workspace.** Enter the subdomain of the workspace you want the
+   assistant to reach. For `acme.neetochat.com`, enter `acme`. See
+   [Workspace subdomain](/getting-started/workspace-subdomain).
+
+   <Frame caption="The first screen of the NeetoChat OAuth flow.">
+     <img src="/assets/mcp/oauth-connect-workspace.png" alt="Dialog headed 'Connect your workspace' with a field for the workspace subdomain, a product domain suffix beside it, and a Continue button" />
+   </Frame>
+
+2. **Sign in to that workspace**, if you are not signed in already.
+3. **Check what you are approving.** Tick **Create and update** or **Delete** in
+   the permission picker if the assistant needs them. When your email belongs to
+   more than one workspace, the screen also lists them all; the one you signed in
+   to is always included, so tick any others the same connection should reach.
+4. **Authorize.** The assistant is granted access as you, with the permissions
+   you ticked, to each workspace you ticked.
+
+One OAuth connection can therefore cover several workspaces. Name the one you
+mean in a prompt, or ask the assistant to list what it can reach. Every tool
+takes an optional `workspace` argument for this, and the `ListWorkspaces` tool
+reports the subdomains to pass.
+
+## API key, scoped to the workspace
+
+An API key carries no identity. Every tool call covers the entire workspace, no
+matter whose machine the assistant runs on or who is typing. Two people sharing
+one key are indistinguishable to NeetoChat, and neither is limited to the
+records they created.
+
+Because there is no user behind the key, the organization role checks do not run
+at all. Where OAuth refuses an action your role does not allow, an API key
+performs it. A key handed to someone with a Standard role therefore lets their
+assistant do what an Admin could, including inviting members and changing roles.
+
+That is what you want for automation that has to see everything, and what you do
+not want on a laptop belonging to someone who should only see their own work.
+
+The key is the same one the [REST API](/getting-started/authentication) uses. The
+REST API takes it in an `X-Api-Key` header; MCP clients send it as a bearer
+token instead:
+
+```json
+"headers": {
+  "Authorization": "Bearer YOUR_API_KEY"
+}
+```
+
+API keys are created in your NeetoChat workspace settings.
+[Learn how to generate your API key here.](https://help.neetochat.com/articles/api-keys)
+
+<Tip>
+  A key belongs to one workspace. To let an assistant work with two workspaces,
+  add the server twice with a different key and a different server name in each
+  entry.
+</Tip>
+
+<Warning>
+  An API key reaches every team member in the workspace and is not tied to a
+  person, so it cannot be traced back to one either. Treat it like a password:
+  keep it out of shared config files and commits, and revoke it if it leaks.
+  Prefer OAuth wherever the client supports it.
+</Warning>
+
+## How the three interfaces authenticate
+
+| Interface | Credential | Scope | Where it goes |
+| --- | --- | --- | --- |
+| [REST API](/getting-started/authentication) | API key | Workspace | `X-Api-Key` header on each request. |
+| [CLI](/cli/authentication) | Browser sign in, stored per workspace | The signed-in user | `~/.config/neetochat/auth.json`. No API key involved. |
+| MCP | OAuth, or an API key | The approving user, or the workspace | Browser approval, or an `Authorization: Bearer` header in the assistant's config file. |

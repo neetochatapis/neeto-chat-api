@@ -1,0 +1,82 @@
+---
+title: "Installation"
+description: "Install the neetochat CLI on macOS, Linux, or Windows."
+---
+
+Install the `neetochat` binary with the command for your platform, then
+[verify it](#verify-the-installation).
+
+<CodeGroup>
+```bash macOS
+brew trust neetozone/tap
+brew install neetozone/tap/neetochat
+```
+
+```bash Linux
+curl -fsSL https://neetochat.com/cli/install.sh | sh
+```
+
+```powershell Windows
+irm https://neetochat.com/cli/install.ps1 | iex
+```
+</CodeGroup>
+
+`neetozone/tap` is not an official Homebrew tap, so Homebrew asks you to trust
+it before it will load the formula.
+
+The shell and Windows installers download the latest release for your
+architecture (`amd64` or `arm64`), extract it, and add `neetochat` to your
+`PATH`.
+
+## Other install methods
+
+<AccordionGroup>
+  <Accordion title="macOS - shell script">
+    ```bash
+    curl -fsSL https://neetochat.com/cli/install.sh | sh
+    ```
+
+    Installs to `/usr/local/bin` and may prompt for `sudo`.
+  </Accordion>
+  <Accordion title="Windows - Command Prompt (CMD)">
+    ```cmd
+    curl -fsSL https://neetochat.com/cli/install.cmd -o install.cmd && install.cmd
+    ```
+
+    Extracts to `%LOCALAPPDATA%\Programs\neetochat` and adds it to your user
+    `PATH`. This is equivalent to the PowerShell method.
+  </Accordion>
+</AccordionGroup>
+
+## Verify the installation
+
+Restart your terminal, then run:
+
+```bash
+neetochat --help
+```
+
+You should see the list of available commands. To check the installed version:
+
+```bash
+neetochat version
+```
+
+## Upgrading
+
+```bash
+neetochat update
+```
+
+`update` works out how the running binary was installed and upgrades it the same
+way: a binary inside a Homebrew Cellar is upgraded with `brew upgrade`, and
+anything else is upgraded by re-running the install script for your platform. It
+prints the method it detected and the command it runs before running it.
+
+Upgrading a Homebrew installation with `brew upgrade neetochat` directly does
+the same thing.
+
+<Tip>
+  Next, [sign in](/cli/authentication) to a workspace and run `neetochat doctor`
+  to confirm the CLI can reach NeetoChat.
+</Tip>

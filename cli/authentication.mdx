@@ -1,0 +1,120 @@
+---
+title: "Authentication"
+description: "Sign in to a workspace, work with several at once, and see where credentials live."
+---
+
+The CLI signs in through the browser. There is no API key to generate or paste,
+and the credential it stores is a session tied to your own account, so every
+command runs with your permissions.
+
+## Sign in
+
+```bash
+neetochat login --subdomain acme
+```
+
+Leave `--subdomain` off and the CLI prompts for it. The subdomain is the part of
+your workspace URL before `neetochat.com`, so `acme` for
+`acme.neetochat.com`. See [Workspace subdomain](/getting-started/workspace-subdomain).
+
+The command opens your browser, prints the URL in case it does not open, and
+waits up to two minutes for you to finish signing in:
+
+```
+Opening browser for authentication...
+If the browser doesn't open, visit: https://acme.neetochat.com/api/cli/v1/login?token=...
+Waiting for authentication... done!
+Authenticated as oliver@example.com on acme.neetochat.com.
+```
+
+Confirm it worked:
+
+```bash
+neetochat doctor
+```
+
+```
+✓ Authentication: authenticated as oliver@example.com on acme.neetochat.com
+✓ API connection: https://acme.neetochat.com (responding in 214ms)
+✓ CLI version: 1.0.4
+```
+
+`doctor` runs each check independently, so a failing credential still tells you
+whether the API is reachable.
+
+## Several workspaces at once
+
+`login` adds an entry rather than replacing one, so you can be signed in to as
+many workspaces as you like. Which one a command targets depends on how many are
+signed in:
+
+| Signed in | What commands do |
+| --- | --- |
+| None | Every command that needs a credential fails with `Not authenticated. Run 'neetochat login' to authenticate.` |
+| One | That workspace is the default and `--subdomain` can be left off. |
+| Two or more | `--subdomain <name>` is required, including on `doctor`. The error lists every signed-in subdomain. |
+
+```bash
+neetochat team-members list --subdomain acme
+```
+
+`--subdomain` is a global flag, so it works on every command.
+
+## Check who you are
+
+```bash
+neetochat whoami
+```
+
+With one workspace signed in it names it as the default:
+
+```
+Authenticated as oliver@example.com on acme.neetochat.com (default).
+```
+
+With several, it lists them all. `neetochat whoami --subdomain acme` shows just
+one.
+
+## Sign out
+
+```bash
+neetochat logout --subdomain acme
+```
+
+With exactly one workspace signed in, `neetochat logout` on its own removes it.
+With several it refuses and asks you to choose, so nothing is dropped by
+accident. `neetochat logout --all` removes every entry.
+
+## Where credentials are stored
+
+Credentials for every signed-in workspace live together in a single file:
+
+```
+~/.config/neetochat/auth.json
+```
+
+Each entry holds the subdomain, your email and a session token.
+
+<Warning>
+  A session token acts as you. Treat the file like a password store, keep it out
+  of backups you share, and run `neetochat logout --all` on a machine you are
+  handing over.
+</Warning>
+
+## Pointing the CLI at another server
+
+Set `NEETOAPICOMMONS_BASE_URL` to reach a staging or local server instead of
+`https://<subdomain>.neetochat.com`:
+
+```bash
+export NEETOAPICOMMONS_BASE_URL=http://acme.lvh.me:8980
+neetochat login --subdomain acme
+```
+
+## How this differs from the API and MCP
+
+| Interface | Credential | Scope |
+| --- | --- | --- |
+| [REST API](/getting-started/authentication) | API key in the `X-Api-Key` header | The whole workspace |
+| CLI | Browser sign in, stored per workspace | The signed-in user |
+| [MCP](/mcp/authentication) | OAuth, or an API key | The approving user, or the whole workspace |

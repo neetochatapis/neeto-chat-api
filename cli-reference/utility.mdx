@@ -1,0 +1,153 @@
+---
+title: "Utility"
+description: "Sign in, check health, set up assistants, upgrade, and install shell completion."
+---
+
+import Logout from "/snippets/cli/logout.mdx";
+
+The commands that manage the CLI itself rather than a NeetoChat resource.
+
+## login
+
+Signs in to a workspace through the browser and stores the credential.
+
+```bash
+neetochat login --subdomain acme
+```
+
+Without `--subdomain` the command prompts for it. It waits up to two minutes for
+you to finish in the browser, and prints the URL in case the browser does not
+open. Running it again for a workspace you are already signed in to refreshes
+that entry. See [Authentication](/cli/authentication).
+
+This command takes no flags of its own.
+
+## logout
+
+Removes a stored credential.
+
+```bash
+neetochat logout --subdomain acme
+```
+
+<Logout />
+
+With exactly one workspace signed in, `neetochat logout` on its own removes it.
+With several it refuses and asks you to choose, so nothing is dropped by
+accident.
+
+## whoami
+
+Lists the workspaces you are signed in to.
+
+```bash
+neetochat whoami
+```
+
+```
+Authenticated as oliver@example.com on acme.neetochat.com (default).
+```
+
+`(default)` appears only when exactly one workspace is signed in, which is the
+case where `--subdomain` can be left off. `neetochat whoami --subdomain acme`
+shows just that one.
+
+This command takes no flags of its own.
+
+## doctor
+
+Checks the credential, reaches the API and reports the installed version.
+
+```bash
+neetochat doctor --subdomain acme
+```
+
+```
+✓ Authentication: authenticated as oliver@example.com on acme.neetochat.com
+✓ API connection: https://acme.neetochat.com (responding in 214ms)
+✓ CLI version: 1.0.4
+```
+
+Each check runs independently, so a failing credential still tells you whether
+the API is reachable. With no credential and no `--subdomain`, the connection
+check is skipped rather than guessed at.
+
+This command takes no flags of its own.
+
+## version
+
+Prints the version, the commit it was built from and the build date.
+
+```bash
+neetochat version
+```
+
+This command takes no flags of its own.
+
+## update
+
+Upgrades the CLI in place.
+
+```bash
+neetochat update
+```
+
+It works out how the running binary was installed and upgrades it the same way:
+a binary inside a Homebrew Cellar is upgraded with `brew upgrade`, and anything
+else is upgraded by re-running the install script for your platform. It prints
+the method it detected and the command it runs before running it.
+
+This command takes no flags of its own.
+
+## setup
+
+Installs NeetoChat instructions into an AI coding assistant.
+
+```bash
+neetochat setup claude
+```
+
+The targets are `claude`, `cursor`, `windsurf`, `copilot`, `gemini` and `codex`.
+Everything except `claude` writes into the current directory, so run it from the
+project root. See [AI assistants](/cli/ai-assistants).
+
+These commands take no flags of their own.
+
+## Shell completion
+
+`neetochat completion <shell>` writes the completion script under
+`~/.config/neetochat/completions` and wires your shell to load it on the next
+start. There is nothing to source by hand.
+
+<CodeGroup>
+```bash zsh
+neetochat completion zsh
+```
+
+```bash bash
+neetochat completion bash
+```
+
+```bash fish
+neetochat completion fish
+```
+
+```powershell powershell
+neetochat completion powershell
+```
+</CodeGroup>
+
+Start a new shell to use it. `zsh`, `bash` and `powershell` add a marked block
+to `~/.zshrc`, `~/.bashrc` or your PowerShell profile; re-running replaces that
+block rather than duplicating it. `fish` writes to
+`~/.config/fish/completions/neetochat.fish`, which fish loads on its own.
+
+Re-run the command after upgrading. The script is generated from the commands
+the binary has, so an old script will not complete new ones.
+
+Pass `--print` to write the script to standard output instead of installing it,
+which is what you want when a package manager or dotfiles repo owns the file:
+
+```bash
+neetochat completion zsh --print > /usr/local/share/zsh/site-functions/_neetochat
+```

@@ -1,0 +1,109 @@
+---
+title: "Troubleshooting"
+description: "Fixes for the errors the neetochat CLI reports."
+---
+
+Start with `neetochat doctor`. It checks your credential, reaches the API and
+prints the installed version, and each check runs independently so one failure
+does not hide the next.
+
+```bash
+neetochat doctor --subdomain acme
+```
+
+## Command not found
+
+`neetochat` is not on your `PATH`. Restart the terminal first, since the
+installers add the directory to your shell profile and existing sessions do not
+pick it up. If it still fails, see [Installation](/cli/installation).
+
+## Not authenticated
+
+```
+Not authenticated. Run 'neetochat login' to authenticate.
+```
+
+No workspace is signed in. Run `neetochat login --subdomain acme`.
+
+## Multiple subdomains authenticated
+
+```
+Multiple subdomains authenticated (acme, beta); specify --subdomain or --all.
+```
+
+More than one workspace is signed in, so the CLI will not guess. Pass
+`--subdomain <name>` on the command. The error lists every signed-in subdomain.
+
+## Not authenticated for a subdomain
+
+```
+Not authenticated for "acme". Authenticated subdomains: beta, gamma.
+```
+
+The name passed to `--subdomain` is not one you are signed in to. Check the
+spelling against the list in the error, or sign in to it.
+
+## Subdomain not found
+
+```
+Subdomain not found. Please check that you entered the correct subdomain.
+For example, if your NeetoChat URL is acme.neetochat.com then enter 'acme'.
+```
+
+`login` could not find a workspace at that address. Enter only the subdomain,
+not the full URL. See [Workspace subdomain](/getting-started/workspace-subdomain).
+
+## Sign in never completes
+
+```
+NeetoChat CLI authentication timed out after 2 minutes. Please try again.
+```
+
+`login` waits two minutes for the browser step. If the browser did not open,
+`login` also prints the URL to open by hand. Run it again once you can reach
+that page.
+
+## API errors
+
+Failures from the server are printed with the status code, the server's message
+and a suggestion:
+
+```
+API error (403): You are not authorized to perform this action.
+
+Suggestion: You do not have permission to perform this action.
+```
+
+| Status | What it usually means |
+| --- | --- |
+| 401 | The stored session expired. Run `neetochat login` again. |
+| 403 | Your organization role does not allow this. The CLI acts as you, so an admin-only action fails for a non-admin. |
+| 404 | The id does not exist in this workspace. Check it, and check `--subdomain`. |
+| 422 | A required field is missing or invalid. Run `neetochat <command> --help`. |
+| 429 | Rate limited. Wait and retry. |
+
+## Required flag not set
+
+```
+required flag(s) "emails", "role" not set
+```
+
+Cobra reports missing required flags before any request is made. See the flag
+table for the command in the [command reference](/cli-reference/overview).
+
+## Unknown organization role
+
+`team-members create` and `team-members update` match the role name exactly,
+including case, against the roles in your workspace. Check the Roles page in
+workspace settings for the exact spelling.
+
+## Table columns are not what you expected
+
+Pretty tables show at most seven columns and trim to your terminal width, so a
+field you want may not appear. Use `--json` for the full record. See
+[Output formats](/cli/output-formats).
+
+## Still stuck
+
+Run the command again with `--json` and include the output, plus
+`neetochat version` and `neetochat doctor`, when you report the problem.

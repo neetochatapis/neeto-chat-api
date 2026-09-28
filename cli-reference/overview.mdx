@@ -1,0 +1,88 @@
+---
+title: "Commands overview"
+description: "Every neetochat command grouped by resource, with links to the full reference."
+---
+
+## Global flags
+
+These flags work on every command and are left out of the per-command flag tables below. See [Output formats](/cli/output-formats) for details.
+
+| Flag | Description |
+| --- | --- |
+| `--json` | Output as JSON |
+| `--quiet` | Output raw data only (no envelope) |
+| `--toon` | Output in TOON format (token-optimized for AI agents) |
+| `--subdomain` | Override saved subdomain |
+
+### doctor
+
+Check CLI health and connectivity
+
+| Command | Description |
+| --- | --- |
+| [`neetochat doctor`](/cli-reference/utility) | Check CLI health and connectivity |
+
+### login
+
+Authenticate to NeetoChat via browser
+
+| Command | Description |
+| --- | --- |
+| [`neetochat login`](/cli-reference/utility) | Authenticate to NeetoChat via browser |
+
+### logout
+
+Sign out and clear saved credentials
+
+| Command | Description |
+| --- | --- |
+| [`neetochat logout`](/cli-reference/utility) | Sign out and clear saved credentials |
+
+### setup
+
+Set up NeetoChat for AI coding assistants
+
+| Command | Description |
+| --- | --- |
+| [`neetochat setup claude`](/cli-reference/utility) | Register NeetoChat plugin with Claude Code |
+| [`neetochat setup codex`](/cli-reference/utility) | Add NeetoChat instructions for OpenAI Codex |
+| [`neetochat setup copilot`](/cli-reference/utility) | Add NeetoChat instructions for GitHub Copilot |
+| [`neetochat setup cursor`](/cli-reference/utility) | Write NeetoChat rules for Cursor IDE |
+| [`neetochat setup gemini`](/cli-reference/utility) | Add NeetoChat instructions for Gemini CLI |
+| [`neetochat setup windsurf`](/cli-reference/utility) | Write NeetoChat rules for Windsurf IDE |
+
+### team-members
+
+Manage team members
+
+| Command | Description |
+| --- | --- |
+| [`neetochat team-members create`](/cli-reference/team-members) | Invite team members |
+| [`neetochat team-members delete`](/cli-reference/team-members) | Remove a team member |
+| [`neetochat team-members list`](/cli-reference/team-members) | List team members |
+| [`neetochat team-members show`](/cli-reference/team-members) | Show a team member |
+| [`neetochat team-members update`](/cli-reference/team-members) | Update a team member |
+
+### update
+
+Update the CLI to the latest version
+
+| Command | Description |
+| --- | --- |
+| [`neetochat update`](/cli-reference/utility) | Update the CLI to the latest version |
+
+### version
+
+Print the CLI version
+
+| Command | Description |
+| --- | --- |
+| [`neetochat version`](/cli-reference/utility) | Print the CLI version |
+
+### whoami
+
+Show current authenticated user(s)
+
+| Command | Description |
+| --- | --- |
+| [`neetochat whoami`](/cli-reference/utility) | Show current authenticated user(s) |

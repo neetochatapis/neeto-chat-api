@@ -1,0 +1,189 @@
+---
+title: "Team members"
+description: "Invite, inspect, update and deactivate the people in a workspace."
+---
+
+import TeamMembersList from "/snippets/cli/team-members/list.mdx";
+import TeamMembersCreate from "/snippets/cli/team-members/create.mdx";
+import TeamMembersUpdate from "/snippets/cli/team-members/update.mdx";
+
+Commands for the people in a workspace. For fields and response details, see the
+[Team Members API reference](/api-reference/team-members/list).
+
+Samples on this page use `--json`, which is the format you get when output is
+piped as well. On a terminal without that flag the same data prints as a table.
+See [Output formats](/cli/output-formats).
+
+These commands act with your own permissions, so inviting, updating or removing
+someone needs an organization role that allows it.
+
+## List team members
+
+Active members of the workspace. `--email` filters to one exact address, which
+is the quickest way to turn an email into an id.
+
+```bash
+neetochat team-members list --json
+```
+
+<TeamMembersList />
+
+```json
+{
+  "data": [
+    {
+      "id": "13c02be6-8bd4-4dda-b9e6-07df53feb8a4",
+      "email": "oliver@example.com",
+      "first_name": "Oliver",
+      "last_name": "Smith",
+      "time_zone": "Asia/Kolkata",
+      "profile_image_url": "https://acme.neetochat.com/uploads/oliver.png",
+      "active": true,
+      "organization_role": "Admin"
+    },
+    {
+      "id": "5f8a2d90-1c47-4b6e-9a03-c81de5476b22",
+      "email": "sam@example.com",
+      "first_name": "Sam",
+      "last_name": "Smith",
+      "time_zone": "America/New_York",
+      "profile_image_url": null,
+      "active": true,
+      "organization_role": "Standard"
+    }
+  ],
+  "breadcrumbs": [
+    {
+      "label": "Show",
+      "command": "neetochat team-members show <id>"
+    }
+  ],
+  "pagination": {
+    "current_page_number": 1,
+    "total_pages": 1,
+    "total_records": 2,
+    "page_size": 30
+  }
+}
+```
+
+## Show a team member
+
+One member by id, when you already have it and want the full record.
+
+### Required arguments
+
+- `<id>` - the team member's UUID, from `neetochat team-members list`.
+
+```bash
+neetochat team-members show 13c02be6-8bd4-4dda-b9e6-07df53feb8a4 --json
+```
+
+This command takes no flags of its own.
+
+```json
+{
+  "data": {
+    "team_member": {
+      "id": "13c02be6-8bd4-4dda-b9e6-07df53feb8a4",
+      "email": "oliver@example.com",
+      "first_name": "Oliver",
+      "last_name": "Smith",
+      "time_zone": "Asia/Kolkata",
+      "profile_image_url": "https://acme.neetochat.com/uploads/oliver.png",
+      "active": true,
+      "organization_role": "Admin"
+    }
+  }
+}
+```
+
+## Invite team members
+
+Adds one or more people to the workspace. An address that already belongs to the
+workspace is reactivated instead, and its role is overwritten.
+
+```bash
+neetochat team-members create \
+  --emails oliver@example.com,sam@example.com \
+  --role Standard
+```
+
+<TeamMembersCreate />
+
+```json
+{
+  "data": {
+    "message": "Users added successfully"
+  }
+}
+```
+
+`--role` matches a role in your workspace exactly, including case. The Roles
+page in workspace settings lists the ones you have; `Admin` and `Standard`
+always exist.
+
+Pass `--send-invitation-email=false` to add people without emailing them.
+
+<Tip>
+  With `--quiet` the command prints only the new record's identifier, which is
+  convenient in a script.
+</Tip>
+
+## Update a team member
+
+Changes only the fields you pass. Everything else is left alone.
+
+### Required arguments
+
+- `<id>` - the team member's UUID, from `neetochat team-members list`.
+
+```bash
+neetochat team-members update 13c02be6-8bd4-4dda-b9e6-07df53feb8a4 \
+  --time-zone America/New_York \
+  --role Admin \
+  --json
+```
+
+<TeamMembersUpdate />
+
+```json
+{
+  "data": {
+    "team_member": {
+      "id": "13c02be6-8bd4-4dda-b9e6-07df53feb8a4",
+      "email": "oliver@example.com",
+      "first_name": "Oliver",
+      "last_name": "Smith",
+      "time_zone": "America/New_York",
+      "profile_image_url": "https://acme.neetochat.com/uploads/oliver.png",
+      "active": true,
+      "organization_role": "Admin"
+    }
+  }
+}
+```
+
+`--time-zone` takes an IANA name such as `Asia/Kolkata`. `--role` matches a
+workspace role exactly, as it does on `create`.
+
+## Remove a team member
+
+Deactivates the member. They lose access.
+
+### Required arguments
+
+- `<id>` - the team member's UUID, from `neetochat team-members list`.
+
+```bash
+neetochat team-members delete 13c02be6-8bd4-4dda-b9e6-07df53feb8a4
+```
+
+This command takes no flags of its own.
+
+```
+Team member removed.
+```
+
+The workspace must keep at least one admin, so removing the last one is
+rejected.

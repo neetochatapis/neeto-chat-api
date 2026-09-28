@@ -1,0 +1,103 @@
+---
+title: "NeetoChat CLI"
+description: "Work with team members from the terminal."
+---
+
+The NeetoChat CLI is a single binary, `neetochat`, that talks to the same
+[external API](/getting-started/introduction) the REST endpoints expose. It
+signs you in through the browser, stores the credential per workspace, and
+prints results as tables, JSON or TOON.
+
+<CardGroup cols={2}>
+  <Card title="No API key to manage" icon="key">
+    `neetochat login` opens a browser and stores a session per workspace. There
+    is no key to generate, paste or rotate.
+  </Card>
+  <Card title="Scoped to you" icon="user-shield">
+    Requests run with your own permissions, so the CLI can only reach what your
+    account can reach.
+  </Card>
+  <Card title="Built for scripting" icon="terminal">
+    `--json`, `--quiet` and `--toon` give machine-readable output, and every
+    command exits non-zero on failure.
+  </Card>
+  <Card title="Ready for AI assistants" icon="robot">
+    `neetochat setup` installs a NeetoChat skill into Claude Code, Cursor,
+    Windsurf, Copilot, Gemini CLI and Codex.
+  </Card>
+</CardGroup>
+
+## CLI vs MCP: which should I use?
+
+NeetoChat's [MCP server](/mcp/introduction) reaches the same team-member
+operations the CLI does - list members, invite people, update a profile, and
+deactivate an account. Neither one can grant or revoke access the other cannot,
+so choose on how the work reaches NeetoChat.
+
+### Reach for the CLI when
+
+- **No AI assistant should be in the loop.** A nightly job that lists workspace
+  members into your own store runs `neetochat` with nothing but the binary
+  and a workspace it is already signed in to - no assistant open, no model
+  account, no tokens spent per run. Over MCP, something with model access has to
+  be running before any call happens at all.
+- **The output feeds another program.** `neetochat team-members list --quiet | jq -r '.[].id'`
+  hands the ids straight to the next command, and a create prints only the new
+  identifier, so `id=$(neetochat team-members create --emails oliver@example.com --role Standard --quiet)`
+  captures it. `--json` keeps the envelope, which is what you want when the
+  records are headed for `jq`, a spreadsheet or your own script. An assistant
+  answers in prose you would have to copy out by hand.
+- **You are working through the whole member list.** Here every page is a
+  separate tool call, and a roster of a few thousand people crowds out the
+  assistant's context. The CLI returns `total_pages` and `total_records` next to
+  the records, so a shell loop walks every page unattended and writes each one
+  to a file or into `jq`.
+- **The run has to be repeatable and reviewable.** The command is the artifact:
+  put it in a runbook or a pull request and it makes the identical call next
+  time, against the same member id with the same flags. Ask twice over MCP and
+  the assistant may take a different route.
+
+### Reach for MCP instead when
+
+- **The details live in your chat, not in your head.** Paste the thread where
+  three people asked for access and they are invited with the role you name,
+  with no address retyped. The CLI cannot see any of it.
+- **You have not decided the steps yet.** "These contractors finished last week -
+  make sure they are out" means reading the member list, matching it against
+  what you have, and choosing who goes. A command can only carry out a decision
+  you have already made.
+- **One request should cover several steps.** Find who is already in the
+  workspace, invite the missing people with the right role, then read the
+  records back - with no id copied between commands.
+- **The person doing it does not use a terminal.** NeetoChat hosts the server, so
+  there is nothing to install on the machine and nothing to keep updated.
+
+<Tip>
+  You can have both. Run [`neetochat setup claude`](/cli/ai-assistants) and your
+  AI assistant drives the CLI itself, so a plain-language request still ends in
+  an exact command you can read, repeat and paste into a script.
+</Tip>
+
+## Prerequisites
+
+- A NeetoChat workspace and your [workspace subdomain](/getting-started/workspace-subdomain).
+- An account in that workspace. The CLI acts as you, so a command fails if your
+  organization role does not allow the operation.
+- macOS, Linux or Windows. See [Installation](/cli/installation).
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/cli/installation">
+    Install the binary with Homebrew or an install script.
+  </Card>
+  <Card title="Authentication" icon="right-to-bracket" href="/cli/authentication">
+    Sign in, work with several workspaces, and see where credentials are stored.
+  </Card>
+  <Card title="Commands overview" icon="list" href="/cli-reference/overview">
+    Every command grouped by resource, with global flags.
+  </Card>
+  <Card title="Output formats" icon="code" href="/cli/output-formats">
+    Pretty tables, the JSON envelope, quiet mode and TOON.
+  </Card>
+</CardGroup>

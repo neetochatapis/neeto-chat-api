@@ -1,0 +1,113 @@
+---
+title: "Output formats"
+description: "Pretty tables, the JSON envelope, quiet mode and TOON."
+---
+
+The CLI picks a format from where its output is going, and four global flags
+override that choice. They work on every command.
+
+| Flag | Output |
+| --- | --- |
+| none | Pretty tables and key-value blocks on a terminal, the JSON envelope when piped. |
+| `--json` | The JSON envelope, even on a terminal. |
+| `--quiet` | The payload only, with no envelope. |
+| `--toon` | TOON, a compact encoding for feeding results to an AI assistant. |
+
+If more than one is set, the precedence is `--toon`, then `--quiet`, then
+`--json`, then pretty.
+
+## Pretty
+
+The default on a terminal. Arrays render as tables, single records as key-value
+blocks, and list commands print a pagination summary and breadcrumbs to related
+commands underneath.
+
+```bash
+neetochat team-members list
+```
+
+<Note>
+  Tables show at most seven columns, chosen from the fields the API returned and
+  trimmed to your terminal width. Which columns appear is therefore not stable
+  across resources or terminals. Use `--json` for anything you intend to parse,
+  which is the format every sample in the [command reference](/cli-reference/overview)
+  uses.
+</Note>
+
+## JSON envelope
+
+Used automatically when output is piped or redirected, and forced with `--json`.
+The payload is wrapped in an envelope:
+
+```json
+{
+  "data": [
+    {
+      "id": "13c02be6-8bd4-4dda-b9e6-07df53feb8a4",
+      "email": "oliver@example.com",
+      "first_name": "Oliver",
+      "last_name": "Smith",
+      "time_zone": "Asia/Kolkata",
+      "profile_image_url": null,
+      "active": true,
+      "organization_role": "Admin"
+    }
+  ],
+  "breadcrumbs": [
+    {
+      "label": "Show",
+      "command": "neetochat team-members show <id>"
+    }
+  ],
+  "pagination": {
+    "current_page_number": 1,
+    "total_pages": 1,
+    "total_records": 1,
+    "page_size": 30
+  }
+}
+```
+
+`data` holds the resource body. `breadcrumbs` is omitted when there are none,
+and `pagination` appears only on list commands.
+
+## Quiet
+
+`--quiet` drops the envelope and prints the payload alone, which is what you
+want inside a script:
+
+```bash
+neetochat team-members list --quiet | jq -r '.[].id'
+```
+
+For commands that create or update a record it prints just the identifier, and
+for `delete` it prints `success`. That makes a new record's id easy to capture:
+
+```bash
+id=$(neetochat team-members create --emails oliver@example.com --role Standard --quiet)
+```
+
+## TOON
+
+`--toon` emits TOON, which carries the same data as JSON with the repeated keys
+factored out. It is meant for handing results to an AI assistant, where it costs
+noticeably fewer tokens than the equivalent JSON.
+
+```bash
+neetochat team-members list --toon
+```
+
+Read it as the JSON it stands for: a header names the fields once, and each
+following line is one record's values in that order.
+
+## Pagination
+
+List commands take `--page` (1-indexed, default `1`) and `--page-size`
+(maximum `100`). The envelope's `pagination` block reports
+`current_page_number`, `total_pages`, `total_records` and `page_size`, so a
+script can walk every page by incrementing `--page` until it reaches
+`total_pages`.
+
+```bash
+neetochat team-members list --page 2 --page-size 50
+```

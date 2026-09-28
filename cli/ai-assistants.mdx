@@ -1,0 +1,62 @@
+---
+title: "AI assistants"
+description: "Teach a coding assistant to drive the neetochat CLI."
+---
+
+`neetochat setup` writes a NeetoChat instruction file into an assistant's
+configuration. The assistant then knows the command tree, the global flags, the
+output envelope and the errors to expect, so it can run `neetochat` for you
+instead of guessing at flags.
+
+Every target is installed the same way:
+
+```bash
+neetochat setup <assistant>
+```
+
+| Assistant | What it writes | Scope |
+| --- | --- | --- |
+| `claude` | A plugin under `~/.config/neetochat/claude-plugin`, then prints two slash commands to finish the install | Your account |
+| `cursor` | `.cursor/rules/neetochat.mdc` | The current project |
+| `windsurf` | `.windsurf/rules/neetochat.md` | The current project |
+| `copilot` | A `## NeetoChat CLI` section in `.github/copilot-instructions.md` | The current project |
+| `gemini` | A `## NeetoChat CLI` section in `GEMINI.md` | The current project |
+| `codex` | A `## NeetoChat CLI` section in `AGENTS.md` | The current project |
+
+Run the command from the root of the project you want the rules to apply to.
+Everything except `setup claude` writes into the working directory.
+
+## Claude Code
+
+Claude Code installs plugins through interactive slash commands, so the setup
+command extracts the plugin and prints the two commands to run:
+
+```bash
+neetochat setup claude
+```
+
+```
+NeetoChat plugin extracted to /Users/oliver/.config/neetochat/claude-plugin
+
+To finish installation, open Claude Code and run these slash commands:
+  /plugin marketplace add /Users/oliver/.config/neetochat/claude-plugin
+  /plugin install neetochat@neetochat
+```
+
+The command needs `~/.claude/` to exist, so install Claude Code first.
+
+## Rerunning setup
+
+`cursor` and `windsurf` write a standalone rules file and leave an existing one
+alone, reporting `Already installed`. Delete the file first to refresh it.
+
+`copilot`, `gemini` and `codex` append to a file that is usually yours, so they
+manage a single `## NeetoChat CLI` section: the first run adds it, and later
+runs replace that section and leave the rest of the file untouched.
+
+## MCP instead
+
+The setup command teaches an assistant to run a CLI that is already signed in as
+you. If you would rather the assistant talk to NeetoChat directly, without a
+binary on the machine, connect it to the [MCP server](/mcp/introduction) instead.
+The two are independent, and an assistant can have both.

@@ -1,0 +1,37 @@
+version: v1.0
+fail_fast: true
+plan: standard-2
+
+paths:
+  - .neetoci/verify.yml
+  - .neetoci/scripts/*
+  - scripts/**
+  - docs/**
+  - api-reference/**
+  - bundled/**
+  - getting-started/**
+  - cli/**
+  - cli-reference/**
+  - mcp/**
+  - snippets/**
+  - assets/**
+  - schemas/**
+  - docs.json
+  - theme.css
+  - os-detect.js
+  - llm.md
+  - package.json
+  - yarn.lock
+
+commands:
+  - checkout
+  - neetoci-version node 22.13
+  - cache restore
+  - yarn install
+  - cache store
+  - yarn build
+  - bash .neetoci/scripts/check_links.sh
+  - bash .neetoci/scripts/validate_bundled.sh
+
+triggers:
+  - event: pull_request

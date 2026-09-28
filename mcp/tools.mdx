@@ -1,0 +1,55 @@
+---
+title: "Tools"
+description: "Every tool the NeetoChat MCP server exposes, grouped by what it acts on."
+---
+
+The assistant picks tools on its own from what you ask, so this page is for
+working out what is reachable rather than something you call by hand.
+
+Every tool takes an optional `workspace` argument holding a subdomain. Leave it
+off and the tool runs against the connection's default workspace.
+
+What a tool returns depends on how you connected. Over OAuth, listings are
+filtered to what your account can see and a record you cannot open is refused.
+With an API key there is no user to filter by, so tools reach the whole
+workspace. See [Authentication](/mcp/authentication).
+
+An OAuth connection is also limited to the permissions you approved. A tool that
+creates or changes something needs **Create and update**, and one that deletes
+needs **Delete**; without them the call is refused with a message naming the
+missing permission. See
+[What you approve](/mcp/authentication#what-you-approve).
+
+## Discovery
+
+| Tool | What it does |
+| --- | --- |
+| `ListWorkspaces` | Lists the workspaces this connection can reach, with the subdomain to pass as `workspace`. |
+
+## Team members
+
+| Tool | What it does | API reference |
+| --- | --- | --- |
+| `ListTeamMembers` | Lists active members, optionally filtered by exact email. Paginated. | [List team members](/api-reference/team-members/list) |
+| `GetTeamMember` | Returns one member by id. | [Get team member details](/api-reference/team-members/get) |
+| `CreateTeamMember` | Invites one or more people by email, defaulting to the `Standard` role. | [Add team members](/api-reference/team-members/add) |
+| `UpdateTeamMember` | Changes a member's email, name, time zone or organization role. Only the fields passed are changed. | [Update team member](/api-reference/team-members/update) |
+| `DeleteTeamMember` | Deactivates a member. | [Remove team member](/api-reference/team-members/remove) |
+
+`CreateTeamMember` is all-or-nothing. Every address must be a well-formed email,
+and if any address or the role is rejected nobody is added, so a failed call
+leaves the workspace unchanged and is safe to retry. The error names every
+address at fault. An email that already belongs to the workspace is reactivated
+rather than duplicated, and its organization role is overwritten.
+
+Organization role names are matched against the roles in your workspace and are
+case-sensitive. If the assistant reports an unknown role, the error lists the
+roles that exist.
+
+## Permissions
+
+Over OAuth, the three team-member write tools and `GetTeamMember` also check your
+own permissions before doing anything: viewing members needs a role that can view
+them, and inviting, updating or deactivating needs one that can manage them.
+Changing someone's organization role needs the permission to manage roles as
+well. An API key connection carries no user, so these checks do not apply.

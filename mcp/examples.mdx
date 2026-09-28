@@ -1,0 +1,93 @@
+---
+title: "Examples"
+description: "Prompts that work once your assistant is connected."
+---
+
+Once connected, you talk to NeetoChat in your own words. The assistant picks the
+[tools](/mcp/tools) it needs, so there is no syntax to learn and no id to look up
+first.
+
+## See who has access
+
+```
+Who is in my NeetoChat workspace, and what role does each of them have?
+```
+
+The assistant lists the active members with their emails, names and organization
+roles.
+
+```
+Is oliver@example.com already in the workspace?
+```
+
+The list API's `email` query parameter and the matching MCP argument filter to
+one exact address. That is the quickest way to turn an email into an id.
+
+## Invite people
+
+```
+Invite oliver@example.com and sam@example.com to NeetoChat as Standard users.
+```
+
+Adding someone is not reversible by simply asking again, so confirm the addresses
+and the role before you send it. Role names are case-sensitive and must match a
+role in your workspace.
+
+```
+Add priya@example.com as an Admin, but do not send the invitation email.
+```
+
+## Update a member
+
+```
+Set Oliver Smith's time zone to America/New_York in NeetoChat.
+```
+
+```
+Change sam@example.com's organization role to Admin.
+```
+
+Only the fields you name are changed. Everything else is left alone.
+
+## Deactivate an account
+
+```
+Deactivate the NeetoChat account for sam@example.com.
+```
+
+The person loses access. The workspace must keep at least one admin, so removing
+the last one is rejected.
+
+## Combine with other context
+
+Once NeetoChat is one of several connected sources, the interesting prompts span
+them:
+
+```
+Take the emails from this offer-letter thread and invite each person as a Standard
+user.
+```
+
+```
+These contractors finished last week. Make sure none of them still have access.
+```
+
+## Working with several workspaces
+
+An OAuth connection can cover more than one workspace, so name the one you mean:
+
+```
+List the team members in the acme NeetoChat workspace.
+```
+
+If you are not sure what the connection can reach:
+
+```
+Which NeetoChat workspaces can you see?
+```
+
+## When a prompt does not work
+
+If the assistant says it cannot find a member you know exists, the likeliest
+causes are the wrong workspace and the permissions on your own account. See
+[Troubleshooting](/mcp/troubleshooting).
