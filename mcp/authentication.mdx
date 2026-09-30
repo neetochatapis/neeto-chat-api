@@ -12,7 +12,7 @@ setup. It decides **what the assistant can see**.
 | Identity | Tied to a NeetoChat user | Tied to nothing and nobody |
 | Set up by | Pasting the server URL | Pasting a key into a config file |
 | Used by | Every client | Every client except Claude and ChatGPT |
-| Reaches several workspaces | Yes, tick them while approving | No, one key is one workspace |
+| Reaches several workspaces | Yes, add them while approving | No, one key is one workspace |
 | Revoked by | Removing the connector | Revoking the key in workspace settings |
 
 Claude and ChatGPT always use OAuth. Claude Code, Codex, Cursor, Gemini CLI, VS
@@ -57,7 +57,7 @@ to grant.
 
 | Permission | Scope | What it covers | Always granted |
 | --- | --- | --- | --- |
-| Read | `read` | See everything in the selected workspaces. | Yes |
+| Read | `read` | See everything in the connected workspaces. | Yes |
 | Stay connected | `offline_access` | Keep working in the background without asking you to sign in again. | Yes |
 | Create and update | `write` | Add new items and change existing ones. | No, you tick it |
 | Delete | `delete` | Permanently delete items. This cannot be undone. | No, you tick it |
@@ -78,8 +78,10 @@ change your mind, connect again and tick the box.
 ### What you see when you connect
 
 1. **Choose your workspace.** Enter the subdomain of the workspace you want the
-   assistant to reach. For `acme.neetochat.com`, enter `acme`. See
-   [Workspace subdomain](/getting-started/workspace-subdomain).
+   assistant to reach. For `acme.neetochat.com`, enter `acme`. You can also paste the workspace URL,
+   and only the subdomain is kept. An email address does not work. The
+   **Find your workspace subdomain** link on this screen opens the
+   [Workspace subdomain](/mcp/workspace-subdomain) page.
 
    <Frame caption="The first screen of the NeetoChat OAuth flow.">
      <img src="/assets/mcp/oauth-connect-workspace.png" alt="Dialog headed 'Connect your workspace' with a field for the workspace subdomain, a product domain suffix beside it, and a Continue button" />
@@ -87,11 +89,11 @@ change your mind, connect again and tick the box.
 
 2. **Sign in to that workspace**, if you are not signed in already.
 3. **Check what you are approving.** Tick **Create and update** or **Delete** in
-   the permission picker if the assistant needs them. When your email belongs to
-   more than one workspace, the screen also lists them all; the one you signed in
-   to is always included, so tick any others the same connection should reach.
+   the permission picker if the assistant needs them. The workspace you
+   entered is always connected. If your email belongs to other workspaces, tick
+   any you also want under **Additional workspaces to connect**.
 4. **Authorize.** The assistant is granted access as you, with the permissions
-   you ticked, to each workspace you ticked.
+   you ticked, to every connected workspace.
 
 One OAuth connection can therefore cover several workspaces. Name the one you
 mean in a prompt, or ask the assistant to list what it can reach. Every tool

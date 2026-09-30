@@ -1,0 +1,26 @@
+---
+title: "Workspace subdomain"
+description: "Find your workspace subdomain and use it to connect an assistant."
+---
+
+Every NeetoChat workspace has its own subdomain. It is the part of your workspace URL before `neetochat.com`. For `https://acme.neetochat.com`, the subdomain is `acme`.
+
+The MCP server URL is the same for every workspace, `https://connect.neetochat.com/mcp/messages`. The subdomain is how you tell NeetoChat which workspace the assistant can reach.
+
+## Find your subdomain
+
+<Steps>
+  <Step title="Open your workspace">
+    Sign in to NeetoChat in your browser and look at the address bar.
+  </Step>
+  <Step title="Take the part before neetochat.com">
+    For `https://green-earth.neetochat.com`, the subdomain is `green-earth`.
+  </Step>
+</Steps>
+
+## Where you use it
+
+- **OAuth.** The first sign-in screen asks you to connect your workspace. Enter the subdomain, such as `green-earth`. You can also paste the full workspace URL, and only the subdomain is kept. An email address does not work. The screen links to this page as "Find your workspace subdomain".
+- **API key.** Create the key in the workspace you want the assistant to reach. One key reaches one workspace.
+
+See [Authentication](/mcp/authentication) for both routes.

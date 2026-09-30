@@ -214,8 +214,10 @@ Whichever client you started from, NeetoChat runs the same steps.
 <Steps>
   <Step title="Choose your workspace">
     Enter the subdomain of the workspace you want the assistant to reach. For
-    `acme.neetochat.com`, enter `acme`. See
-    [Workspace subdomain](/getting-started/workspace-subdomain).
+    `acme.neetochat.com`, enter `acme`. You can also paste the workspace URL,
+    and only the subdomain is kept. An email address does not work. The
+    **Find your workspace subdomain** link on this screen opens the
+    [Workspace subdomain](/mcp/workspace-subdomain) page.
 
     <Frame caption="The first screen of the NeetoChat OAuth flow.">
       <img src="/assets/mcp/oauth-connect-workspace.png" alt="Dialog headed 'Connect your workspace' with a field for the workspace subdomain, a product domain suffix beside it, and a Continue button" />
@@ -231,13 +233,12 @@ Whichever client you started from, NeetoChat runs the same steps.
     not grant is refused when it is called. See
     [What you approve](/mcp/authentication#what-you-approve).
 
-    **Workspaces to connect** lists every workspace your email belongs to. The
-    one you just signed in to is ticked and cannot be unticked. Tick any others
-    you want the same connection to reach.
+    The workspace you entered is always connected. If your email belongs to
+    other workspaces, tick any you also want under **Additional workspaces to
+    connect**. The permissions you approve apply to every connected workspace.
 
-    That list only appears when your email belongs to more than one workspace.
-    With a single workspace, the screen goes straight from the permissions to
-    the buttons.
+    That list only appears when your email belongs to other workspaces. Without
+    them, the screen goes straight from the permissions to the buttons.
 
     <Frame caption="The Authorize access screen, with the permission picker above the workspace list.">
       <img src="/assets/mcp/oauth-authorize.png" alt="'Authorize access' screen showing the workspace and the signed-in email, a 'What this connection can do' picker with Read and Stay connected marked always granted and Create and update and Delete as checkboxes, a 'Workspaces to connect' list with three workspaces, the current one ticked and disabled, and Cancel and Authorize buttons" />
@@ -245,7 +246,7 @@ Whichever client you started from, NeetoChat runs the same steps.
   </Step>
   <Step title="Authorize">
     Click **Authorize**. The assistant is granted access as you, with your own
-    permissions and no more than you ticked, to each workspace you ticked.
+    permissions and no more than you ticked, to every connected workspace.
   </Step>
 </Steps>
 
@@ -253,7 +254,7 @@ There is no API key to create for this route, and nothing to paste back into the
 assistant.
 
 Once connected, name the workspace in a prompt when you want a specific one. To
-add a workspace later, run the sign in again and tick it.
+add a workspace later, run the sign in again and tick it under **Additional workspaces to connect**.
 
 ## API key, scoped to the workspace
 
