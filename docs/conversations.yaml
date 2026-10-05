@@ -1,0 +1,409 @@
+openapi: 3.0.3
+info:
+  title: NeetoChat Conversations APIs
+  version: 1.0.0
+
+servers:
+  $ref: "../schemas/common.yaml#/servers"
+
+tags:
+  - name: Conversations
+    description: APIs to list, create and update conversations in the workspace.
+  - name: Messages
+    description: APIs to read and send messages in a conversation.
+
+paths:
+  /conversations:
+    get:
+      summary: List conversations
+      tags:
+        - Conversations
+      description: |
+        List conversations in the workspace.
+
+        To find conversations with new activity, pass the `updated_at` of the most recent conversation you have already processed as `updated_after` and sort by `updated_at` in ascending order. A new message or note in a conversation also updates its `updated_at`.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - in: query
+          name: status
+          description: Filter conversations by status. Pass several statuses as a comma-separated list, such as `open,waiting_on_customer`.
+          required: false
+          schema:
+            type: string
+            example: "open"
+        - in: query
+          name: updated_after
+          description: Return only conversations updated after this time, as an ISO 8601 timestamp. A timestamp with a `+` offset must be URL-encoded (`%2B05:30`).
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: "2026-10-05T10:00:00Z"
+        - in: query
+          name: sort
+          description: Field to sort conversations by. Defaults to `created_at`. Conversations with the same value are ordered by `id`.
+          required: false
+          schema:
+            type: string
+            enum: ["created_at", "updated_at"]
+            default: "created_at"
+        - in: query
+          name: order
+          description: Sort direction. Defaults to `asc`.
+          required: false
+          schema:
+            type: string
+            enum: ["asc", "desc"]
+            default: "asc"
+        - $ref: "../schemas/conversation.yaml#/page_param"
+        - $ref: "../schemas/conversation.yaml#/per_page_param"
+      responses:
+        "200":
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/conversation_list_response"
+        "422":
+          description: Unprocessable Entity - A query parameter has an invalid value
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+              example:
+                error: "Invalid updated_after value. It must be an ISO 8601 timestamp."
+
+    post:
+      summary: Create conversation
+      tags:
+        - Conversations
+      description: |
+        Start a conversation on behalf of a contact.
+
+        The contact is matched by `user_identifier`, then by `email`, and a new contact is created when neither matches.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                visitor_attributes:
+                  type: object
+                  description: Details of the contact starting the conversation.
+                  properties:
+                    email:
+                      type: string
+                      format: email
+                      example: "sam@example.com"
+                    name:
+                      type: string
+                      example: "Sam Brown"
+                    phone_number:
+                      type: string
+                      example: "+14155550123"
+                    user_identifier:
+                      type: string
+                      description: Your own identifier for the contact.
+                      example: "customer-1042"
+                    traits:
+                      type: object
+                      description: Custom attributes to store on the contact.
+                      additionalProperties: true
+                      example:
+                        plan: "Pro"
+                  required:
+                    - email
+                messages_attributes:
+                  type: array
+                  description: Messages from the contact that start the conversation. At least one message with a `body` is required.
+                  items:
+                    type: object
+                    properties:
+                      body:
+                        type: string
+                        example: "Hi, I need help with a refund."
+                    required:
+                      - body
+                title:
+                  type: string
+                  example: "Refund for order #1042"
+                status:
+                  type: string
+                  description: Status of the conversation. It must be one of the statuses of your workspace.
+                  example: "open"
+                priority:
+                  type: string
+                  enum: ["low", "medium", "high", "urgent"]
+                  example: "high"
+                assignee_email:
+                  type: string
+                  format: email
+                  description: Email of the team member to assign the conversation to. It is ignored when no team member has this email.
+                  example: "oliver@example.com"
+                group_name:
+                  type: string
+                  description: Name of the group to assign the conversation to. It is ignored when no group has this name.
+                  example: "Billing"
+                tags:
+                  type: array
+                  description: Names of the tags to add to the conversation. Tags that don't exist yet are created.
+                  items:
+                    type: string
+                  example: ["refund", "priority-customer"]
+                ticket_fields:
+                  type: object
+                  description: Ticket field values keyed by the field's name. Use the option label for dropdown fields, an array of labels for multi-select fields and `true` or `false` for checkbox fields.
+                  additionalProperties: true
+                  example:
+                    Order number: "1042"
+                origin_page_url:
+                  type: string
+                  description: URL of the page the conversation was started from.
+                  example: "https://example.com/pricing"
+                origin_page_title:
+                  type: string
+                  description: Title of the page the conversation was started from.
+                  example: "Pricing"
+              required:
+                - visitor_attributes
+                - messages_attributes
+      responses:
+        "201":
+          description: Created - Conversation created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/conversation_response"
+        "422":
+          description: Unprocessable Entity - The request body is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+              example:
+                error: "A conversation must include at least one message."
+
+  /conversations/{conversation_id}:
+    get:
+      summary: Get conversation details
+      tags:
+        - Conversations
+      description: Retrieves details of a specific conversation.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/conversation.yaml#/conversation_id_param"
+      responses:
+        "200":
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/conversation_response"
+        "404":
+          description: Not Found - No conversation with this id exists in the workspace
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+
+    patch:
+      summary: Update conversation
+      tags:
+        - Conversations
+      description: Update a conversation. Only the fields you pass are changed.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/conversation.yaml#/conversation_id_param"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Refund for order #1042"
+                status:
+                  type: string
+                  description: Status of the conversation. It must be one of the statuses of your workspace.
+                  example: "closed"
+                priority:
+                  type: string
+                  enum: ["low", "medium", "high", "urgent"]
+                  example: "medium"
+                assignee_email:
+                  type: string
+                  format: email
+                  description: Email of the team member to assign the conversation to. It is ignored when no team member has this email.
+                  example: "oliver@example.com"
+                group_name:
+                  type: string
+                  description: Name of the group to assign the conversation to. It is ignored when no group has this name.
+                  example: "Billing"
+                tags:
+                  type: array
+                  description: Names of the tags the conversation should have. This replaces the conversation's current tags, and tags that don't exist yet are created.
+                  items:
+                    type: string
+                  example: ["refund"]
+                ticket_fields:
+                  type: object
+                  description: Ticket field values keyed by the field's name. Use the option label for dropdown fields, an array of labels for multi-select fields and `true` or `false` for checkbox fields.
+                  additionalProperties: true
+                  example:
+                    Order number: "1042"
+      responses:
+        "200":
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/conversation_response"
+        "404":
+          description: Not Found - No conversation with this id exists in the workspace
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+        "422":
+          description: Unprocessable Entity - The request body is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+              example:
+                error: "Invalid ticket field: Order number."
+
+  /conversations/{conversation_id}/messages:
+    get:
+      summary: List messages
+      tags:
+        - Messages
+      description: List the messages in a conversation, oldest first. Internal notes and messages created by NeetoChat are included.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/conversation.yaml#/conversation_id_param"
+        - $ref: "../schemas/conversation.yaml#/page_param"
+        - $ref: "../schemas/conversation.yaml#/per_page_param"
+      responses:
+        "200":
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/message_list_response"
+        "404":
+          description: Not Found - No conversation with this id exists in the workspace
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+
+    post:
+      summary: Send message
+      tags:
+        - Messages
+      description: |
+        Add a message or an internal note to a conversation.
+
+        The sender is resolved from `sender_email`. If it belongs to an active team member, the message is sent as a reply from that team member. Otherwise it is sent as a message from the contact with that email, and a new contact is created when none exists.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/conversation.yaml#/conversation_id_param"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                body:
+                  type: string
+                  description: Content of the message.
+                  example: "Thanks, we have processed your refund."
+                sender_email:
+                  type: string
+                  format: email
+                  description: Email of the team member or contact sending the message. A note must be sent by an active team member.
+                  example: "oliver@example.com"
+                kind:
+                  type: string
+                  enum: ["user_message", "note"]
+                  default: "user_message"
+                  description: Pass `note` to add an internal note that only team members can see.
+                mentions:
+                  type: array
+                  description: Team members to mention in a note. Mentions are only supported when `kind` is `note`. Each `@Name` in the body that matches a mentioned team member becomes a mention, and team members not named in the body are mentioned at the end of the note.
+                  items:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        format: email
+                        example: "jane@example.com"
+              required:
+                - body
+                - sender_email
+      responses:
+        "201":
+          description: Created - Message added successfully
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/message_response"
+        "404":
+          description: Not Found - No conversation with this id exists in the workspace
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+        "422":
+          description: Unprocessable Entity - The request body is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+              example:
+                error: "Only agents can add notes. sender_email must belong to an agent."
+
+  /conversations/{conversation_id}/messages/{message_id}:
+    get:
+      summary: Get message details
+      tags:
+        - Messages
+      description: Retrieves a specific message in a conversation.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/conversation.yaml#/conversation_id_param"
+        - in: path
+          name: message_id
+          description: Id of the message. You can get `message_id` by listing the conversation's messages using our [List messages](/api-reference/messages/list) API.
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "1bf689fc-9f92-4e39-9f71-4a97078d2b8f"
+      responses:
+        "200":
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/message_response"
+        "404":
+          description: Not Found - No message with this id exists in the conversation
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/error"

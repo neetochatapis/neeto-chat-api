@@ -1,0 +1,264 @@
+# Query parameters shared by the paginated conversation and message endpoints
+page_param:
+  in: query
+  name: page
+  description: Page number to retrieve, starting from 1. Defaults to 1 when omitted.
+  required: false
+  schema:
+    type: integer
+    example: 1
+
+per_page_param:
+  in: query
+  name: per_page
+  description: Number of records per page. Defaults to 15 when omitted, and values above 100 are capped at 100. `page_size` is accepted as an alias.
+  required: false
+  schema:
+    type: integer
+    example: 15
+
+conversation_id_param:
+  in: path
+  name: conversation_id
+  description: Id of the conversation. You can get `conversation_id` by listing conversations using our [List conversations](/api-reference/conversations/list) API.
+  required: true
+  schema:
+    type: string
+    format: uuid
+    example: "de414e85-a1b5-4240-a465-7b32606980ce"
+
+components:
+  schemas:
+    # Pagination object returned by conversation and message list endpoints
+    pagination:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          description: Current page number.
+          example: 1
+        total_pages:
+          type: integer
+          description: Total number of pages available.
+          example: 4
+        total_count:
+          type: integer
+          description: Total number of records across all pages.
+          example: 52
+        per_page:
+          type: integer
+          description: Number of records per page.
+          example: 15
+
+    error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Conversation does not exist."
+
+    conversation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "de414e85-a1b5-4240-a465-7b32606980ce"
+        status:
+          type: string
+          description: Name of the conversation's status. The default statuses are `new`, `open`, `waiting_on_customer`, `on_hold`, `closed`, `spam` and `trash`, and your workspace may also have custom statuses.
+          example: "open"
+        title:
+          type: string
+          nullable: true
+          example: "Refund for order #1042"
+        priority:
+          type: string
+          enum: ["low", "medium", "high", "urgent"]
+          example: "low"
+        channel_name:
+          type: string
+          description: Unique identifier of the conversation's chat channel.
+          example: "b945fd3cd2573017052901d6dbd0832f"
+        origin_page_url:
+          type: string
+          nullable: true
+          description: URL of the page the conversation was started from.
+          example: "https://example.com/pricing"
+        origin_page_title:
+          type: string
+          nullable: true
+          description: Title of the page the conversation was started from.
+          example: "Pricing"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-09-23T18:07:53.661Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Time the conversation was last changed. A new message or note in the conversation also updates it.
+          example: "2026-10-05T16:26:58.143Z"
+        agent:
+          type: object
+          description: Team member assigned to the conversation. All fields are `null` when the conversation is unassigned.
+          properties:
+            id:
+              type: string
+              format: uuid
+              nullable: true
+              example: "05665eee-4602-4317-8f7f-767b04274e5f"
+            name:
+              type: string
+              nullable: true
+              example: "Oliver Smith"
+            email:
+              type: string
+              nullable: true
+              example: "oliver@example.com"
+        group:
+          type: object
+          description: Group assigned to the conversation. All fields are `null` when no group is assigned.
+          properties:
+            id:
+              type: string
+              format: uuid
+              nullable: true
+              example: null
+            name:
+              type: string
+              nullable: true
+              example: null
+        visitor:
+          type: object
+          description: Contact who started the conversation.
+          properties:
+            id:
+              type: string
+              format: uuid
+              example: "2c79a334-0bc8-44e4-9504-331f59d400ab"
+            name:
+              type: string
+              nullable: true
+              example: "Sam Brown"
+            email:
+              type: string
+              nullable: true
+              example: "sam@example.com"
+            phone_number:
+              type: string
+              nullable: true
+              example: null
+            user_identifier:
+              type: string
+              nullable: true
+              example: null
+
+    conversation_response:
+      type: object
+      properties:
+        conversation:
+          $ref: '#/components/schemas/conversation'
+
+    conversation_list_response:
+      type: object
+      properties:
+        conversations:
+          type: array
+          items:
+            $ref: '#/components/schemas/conversation'
+        pagination:
+          $ref: '#/components/schemas/pagination'
+
+    message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "1bf689fc-9f92-4e39-9f71-4a97078d2b8f"
+        body:
+          type: string
+          description: Content of the message. It may contain HTML.
+          example: "<p>Thanks, we have processed your refund.</p>"
+        kind:
+          type: string
+          description: Type of the message. `user_message` is a chat message and `note` is an internal note that only team members can see. Other kinds, such as `system_message` and `activity_message`, are created by NeetoChat.
+          example: "user_message"
+        status:
+          type: string
+          example: "read"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-10-05T16:26:57.912Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-10-05T16:26:57.912Z"
+        sender:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              nullable: true
+              example: "05665eee-4602-4317-8f7f-767b04274e5f"
+            name:
+              type: string
+              nullable: true
+              example: "Oliver Smith"
+            email:
+              type: string
+              nullable: true
+              example: "oliver@example.com"
+            type:
+              type: string
+              nullable: true
+              description: "`User` for a team member and `Insights::Visitor` for a contact."
+              example: "User"
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              filename:
+                type: string
+                example: "invoice.pdf"
+              content_type:
+                type: string
+                example: "application/pdf"
+              url:
+                type: string
+                example: "https://spinkart.neetochat.com/rails/active_storage/blobs/redirect/.../invoice.pdf"
+        message_gif:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: string
+              format: uuid
+            embed_url:
+              type: string
+            title:
+              type: string
+          example: null
+
+    message_response:
+      type: object
+      properties:
+        message:
+          $ref: '#/components/schemas/message'
+
+    message_list_response:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/message'
+        pagination:
+          $ref: '#/components/schemas/pagination'

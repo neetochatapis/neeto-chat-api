@@ -52,6 +52,25 @@
             ]
           },
           {
+            "group": "Conversations",
+            "icon": "comments",
+            "pages": [
+              "api-reference/conversations/list",
+              "api-reference/conversations/add",
+              "api-reference/conversations/get",
+              "api-reference/conversations/update"
+            ]
+          },
+          {
+            "group": "Messages",
+            "icon": "message",
+            "pages": [
+              "api-reference/messages/list",
+              "api-reference/messages/add",
+              "api-reference/messages/get"
+            ]
+          },
+          {
             "group": "Team Members",
             "icon": "user-group",
             "pages": [
