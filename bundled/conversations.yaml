@@ -132,8 +132,31 @@ paths:
                       body:
                         type: string
                         example: Hi, I need help with a refund.
+                      created_at:
+                        type: string
+                        format: date-time
+                        description: ISO 8601 time the message was originally sent. Required on every message when the conversation has a `created_at`, and allowed only then. It can't be in the future or earlier than the conversation's `created_at`. Messages are stored in time order, whatever order you send them in.
+                        example: '2025-03-01T10:00:00Z'
+                      external_id:
+                        type: string
+                        description: Your own id for the message, unique in your workspace. It must not repeat within the request or match a message that already exists.
+                        example: intercom-part-88231
                     required:
                       - body
+                created_at:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 time the conversation originally started. Passing it imports the conversation. It can't be in the future.
+                  example: '2025-03-01T10:00:00Z'
+                closed_at:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 time the conversation was originally closed. Allowed only with `created_at` and a `status` of `closed`, and it can't be earlier than `created_at`. A closed conversation imported without it is closed at the time of its last message.
+                  example: '2025-03-01T11:30:00Z'
+                external_id:
+                  type: string
+                  description: Your own id for the conversation, unique in your workspace. When a conversation with this `external_id` already exists, it is returned with status `200` and nothing is created. Conversation and message ids are checked separately, so a message may reuse a conversation's id.
+                  example: intercom-215472
                 title:
                   type: string
                   example: 'Refund for order #1042'
@@ -184,6 +207,12 @@ paths:
                 - visitor_attributes
                 - messages_attributes
       responses:
+        '200':
+          description: OK - A conversation with this `external_id` already exists, and it is returned unchanged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/conversation_response'
         '201':
           description: Created - Conversation created successfully
           content:
@@ -196,8 +225,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-              example:
-                error: A conversation must include at least one message.
+              examples:
+                missing_message:
+                  summary: No message
+                  value:
+                    error: A conversation must include at least one message.
+                invalid_timestamp:
+                  summary: Unparseable timestamp
+                  value:
+                    error: Invalid created_at. It must be an ISO 8601 timestamp.
+                message_before_conversation:
+                  summary: Message dated before the conversation
+                  value:
+                    error: A message's created_at can't be earlier than its conversation's created_at.
+                duplicate_message_external_id:
+                  summary: Message external_id already used
+                  value:
+                    error: 'Message external_id must be unique: intercom-part-88231.'
   /conversations/{conversation_id}:
     get:
       summary: Get conversation details
@@ -328,6 +372,10 @@ paths:
         Add a message or an internal note to a conversation.
 
         The sender is resolved from `sender_email`. If it belongs to an active team member, the message is sent as a reply from that team member. Otherwise it is sent as a message from the contact with that email, and a new contact is created when none exists.
+
+        Pass `created_at` to import a message from another tool. It keeps that date, is stored as already read, and sends no notification, runs no automation rule or webhook and records no reporting data. It also doesn't assign the conversation to the team member who sent it. See [Importing past conversations](/api-reference/conversations/add#importing-past-conversations).
+
+        Pass `external_id` to make the request safe to retry. When a message with the same `external_id` already exists in the workspace, it is returned with status `200` and nothing new is created.
       parameters:
         - $ref: '#/components/parameters/api_key_header'
         - $ref: '#/components/parameters/accept_header'
@@ -355,6 +403,15 @@ paths:
                     - note
                   default: user_message
                   description: Pass `note` to add an internal note that only team members can see.
+                created_at:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 time the message was originally sent. Passing it imports the message. It can't be in the future or earlier than the conversation's `created_at`.
+                  example: '2025-03-01T10:30:00Z'
+                external_id:
+                  type: string
+                  description: Your own id for the message, unique in your workspace among messages. When a message with this `external_id` already exists in this conversation, it is returned with status `200` and nothing is created. If it belongs to another conversation, the request is rejected with status `422`.
+                  example: intercom-part-88232
                 mentions:
                   type: array
                   description: Team members to mention in a note. Mentions are only supported when `kind` is `note`. Each `@Name` in the body that matches a mentioned team member becomes a mention, and team members not named in the body are mentioned at the end of the note.
@@ -369,6 +426,12 @@ paths:
                 - body
                 - sender_email
       responses:
+        '200':
+          description: OK - A message with this `external_id` already exists, and it is returned unchanged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/message_response'
         '201':
           description: Created - Message added successfully
           content:
@@ -503,6 +566,11 @@ components:
           nullable: true
           description: Title of the page the conversation was started from.
           example: Pricing
+        external_id:
+          type: string
+          nullable: true
+          description: Your own id for the conversation, as sent when it was created.
+          example: null
         created_at:
           type: string
           format: date-time
@@ -623,6 +691,11 @@ components:
         status:
           type: string
           example: read
+        external_id:
+          type: string
+          nullable: true
+          description: Your own id for the message, as sent when it was created.
+          example: null
         created_at:
           type: string
           format: date-time

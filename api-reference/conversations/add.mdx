@@ -6,3 +6,17 @@ openapi: "/bundled/conversations.yaml POST /conversations"
 import SubdomainInfo from "/snippets/subdomain-info.mdx";
 
 <SubdomainInfo />
+
+## Importing past conversations
+
+To bring in conversations from another tool, pass `created_at` on the conversation and on every message in `messages_attributes`. The conversation is then imported rather than started:
+
+- It keeps the dates you send instead of the time of the request.
+- Its messages are stored as already read.
+- Nothing that is meant for a live conversation happens. No email, push, Slack or Microsoft Teams notification is sent, no automation rule or webhook runs, the chatbot and AI assistant stay out of it, and no reporting data is recorded.
+
+Add the agent replies afterwards with [Send message](/api-reference/messages/add), passing `created_at` on each of them too.
+
+Pass `external_id`, your own id for the conversation and for each message, to make an import safe to run again. When a conversation or message with the same `external_id` already exists in the workspace, it is returned with status `200` and nothing new is created.
+
+Time-based automation rules only look at conversations updated in the last month. An imported conversation that is still open and was updated within that month can match a rule such as "time since last reply", as a live conversation would. Import such conversations as `closed` if you don't want that.

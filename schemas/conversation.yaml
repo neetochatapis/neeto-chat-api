@@ -90,6 +90,11 @@ components:
           nullable: true
           description: Title of the page the conversation was started from.
           example: "Pricing"
+        external_id:
+          type: string
+          nullable: true
+          description: Your own id for the conversation, as sent when it was created.
+          example: null
         created_at:
           type: string
           format: date-time
@@ -188,6 +193,11 @@ components:
         status:
           type: string
           example: "read"
+        external_id:
+          type: string
+          nullable: true
+          description: Your own id for the message, as sent when it was created.
+          example: null
         created_at:
           type: string
           format: date-time
