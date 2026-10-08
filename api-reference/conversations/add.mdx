@@ -15,7 +15,9 @@ To bring in conversations from another tool, pass `created_at` on the conversati
 - Its messages are stored as already read.
 - Nothing that is meant for a live conversation happens. No email, push, Slack or Microsoft Teams notification is sent, no automation rule or webhook runs, the chatbot and AI assistant stay out of it, and no reporting data is recorded.
 
-Add the agent replies afterwards with [Send message](/api-reference/messages/add), passing `created_at` on each of them too.
+To import the agent replies in the same request, pass the team member's email as `sender_email` on those messages. A message without `sender_email`, or with the contact's email, is from the contact. The email must belong to a team member of your workspace, including one who has since been deactivated, so replies from agents who have left keep their sender. Any other email rejects the whole request, so a typo can't turn an agent reply into a message from the contact. Importing a reply doesn't assign the conversation to the agent who sent it. Pass `assignee_email` for that.
+
+You can also add messages afterwards with [Send message](/api-reference/messages/add), passing `created_at` on each of them.
 
 Pass `external_id`, your own id for the conversation and for each message, to make an import safe to run again. When a conversation or message with the same `external_id` already exists in the workspace, it is returned with status `200` and nothing new is created.
 

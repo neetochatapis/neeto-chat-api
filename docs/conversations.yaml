@@ -120,7 +120,7 @@ paths:
                     - email
                 messages_attributes:
                   type: array
-                  description: Messages from the contact that start the conversation. At least one message with a `body` is required.
+                  description: Messages that start the conversation. They are from the contact unless an imported message names an agent in `sender_email`. At least one message with a `body` is required.
                   items:
                     type: object
                     properties:
@@ -136,6 +136,11 @@ paths:
                         type: string
                         description: Your own id for the message, unique in your workspace. It must not repeat within the request or match a message that already exists.
                         example: "intercom-part-88231"
+                      sender_email:
+                        type: string
+                        format: email
+                        description: Who sent the message. Leave it out, or pass the contact's `email`, for a message from the contact. Pass a team member's email, including a deactivated team member's, to import the message as that agent's reply, which works only when the conversation has a `created_at`. Any other email is rejected and nothing is created.
+                        example: "agent@example.com"
                     required:
                       - body
                 created_at:
@@ -231,6 +236,14 @@ paths:
                   summary: Message external_id already used
                   value:
                     error: "Message external_id must be unique: intercom-part-88231."
+                unknown_message_sender:
+                  summary: Message sender is neither the contact nor a team member
+                  value:
+                    error: "sender_email in messages_attributes must be the contact's email or a team member's email: agnet@example.com."
+                agent_reply_requires_created_at:
+                  summary: Agent reply sent without created_at
+                  value:
+                    error: "Agent replies in messages_attributes can only be sent along with created_at."
 
   /conversations/{conversation_id}:
     get:
