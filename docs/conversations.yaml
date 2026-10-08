@@ -304,6 +304,10 @@ paths:
                   additionalProperties: true
                   example:
                     Order number: "1042"
+                read:
+                  type: boolean
+                  description: Pass `true` to mark the conversation as read, the same as a team member opening it in the inbox. It marks the contact's unread messages as read and updates the unread counts. `false` leaves the conversation as it is. It can be passed on its own or along with other fields.
+                  example: true
       responses:
         "200":
           description: OK - Request succeeded
@@ -323,8 +327,15 @@ paths:
             application/json:
               schema:
                 $ref: "../schemas/conversation.yaml#/components/schemas/error"
-              example:
-                error: "Invalid ticket field: Order number."
+              examples:
+                invalid_ticket_field:
+                  summary: Unknown ticket field
+                  value:
+                    error: "Invalid ticket field: Order number."
+                invalid_read_value:
+                  summary: Unaccepted read value
+                  value:
+                    error: "Invalid read value. Allowed values are true and false."
 
   /conversations/{conversation_id}/messages:
     get:
