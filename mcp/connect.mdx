@@ -73,15 +73,21 @@ approve the connection in the browser.
     [Get started with custom connectors using remote MCP](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp).
   </Tab>
 
-  <Tab title="ChatGPT">
+  <Tab title="ChatGPT web app">
     Custom MCP servers are added through developer mode.
 
-    1. Open **Settings → Security and login** and turn on **Developer mode**. The
+    1. Open **Settings → Security and login**. Scroll to the bottom of the page
+       and turn on **Developer mode**. It is below **Lockdown mode**. The
        **Plugins** settings section links straight to it.
 
        <Frame>
          <img src="/assets/mcp/chatgpt-developer-mode.png" alt="ChatGPT's Developer mode setting, tagged Elevated risk, with its toggle switched on" />
        </Frame>
+
+       ChatGPT does not allow **Lockdown mode** and **Developer mode** at the
+       same time. If **Lockdown mode** is on, turn it off first. If you still do
+       not see **Developer mode**, your ChatGPT workspace admin has turned it
+       off. Ask them to allow it.
 
     2. Go to **Plugins**, click **Browse plugins**, then the **plus** button.
     3. In **New Plugin**, enter a name, set **Connection** to **Server URL**, and
@@ -101,6 +107,43 @@ approve the connection in the browser.
     [Building MCP servers for plugins and API integrations](https://developers.openai.com/api/docs/mcp).
     They renamed the app directory to the plugin directory in July 2026, so older
     walkthroughs may say "apps" or "connectors" where the UI now says "plugins".
+  </Tab>
+
+  <Tab title="ChatGPT desktop app">
+    The desktop app does not need **Developer mode**.
+
+    1. Click your profile picture at the bottom left, then click **Settings**.
+
+       <Frame>
+         <img src="/assets/mcp/chatgpt-desktop-settings-menu.png" alt="The profile menu in the ChatGPT desktop app, with Settings in the list" />
+       </Frame>
+
+    2. Click **Plugins**. Click **Add**, then click **Add MCP server**.
+
+       <Frame>
+         <img src="/assets/mcp/chatgpt-desktop-add-mcp-server.png" alt="The Plugins page in the ChatGPT desktop app, with the Add menu open and Add MCP server in the list" />
+       </Frame>
+
+    3. Enter the name NeetoChat and set **Type** to **Streamable HTTP**.
+    4. In **URL**, paste:
+
+       ```
+       https://connect.neetochat.com/mcp/messages
+       ```
+
+    5. Leave the other fields empty and click **Save**.
+
+       <Frame>
+         <img src="/assets/mcp/chatgpt-desktop-custom-mcp-form.png" alt="The Connect to a custom MCP form with the name NeetoChat, the type Streamable HTTP, the server URL filled in, and a Save button" />
+       </Frame>
+
+    6. Click the **MCPs** tab. Next to **neetochat**, click **Authenticate**.
+
+       <Frame>
+         <img src="/assets/mcp/chatgpt-desktop-authenticate.png" alt="The neetochat row in the MCPs list, with an Authenticate button" />
+       </Frame>
+
+    7. Sign in to NeetoChat.
   </Tab>
 
   <Tab title="Claude Code">
