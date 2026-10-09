@@ -1,0 +1,83 @@
+openapi: 3.0.3
+info:
+  title: NeetoChat Contacts APIs
+  version: 1.0.0
+
+servers:
+  $ref: "../schemas/common.yaml#/servers"
+
+tags:
+  - name: Contacts
+    description: APIs to look up contacts in the workspace.
+
+paths:
+  /visitors:
+    get:
+      summary: List contacts
+      tags:
+        - Contacts
+      description: |
+        List contacts in the workspace, oldest first. Contacts created at the same time are ordered by `id`.
+
+        Filter by `email` or `user_identifier` to find the contacts for a person. Neither value is unique in a workspace: the chat widget creates a separate contact for each browser a person chats from, so one person can have several contacts with the same email. These filters therefore return a list, which can contain more than one contact.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - in: query
+          name: email
+          description: Return only contacts with this email. The match ignores case.
+          required: false
+          schema:
+            type: string
+            format: email
+            example: "sam@example.com"
+        - in: query
+          name: user_identifier
+          description: Return only contacts with this `user_identifier`. When combined with `email`, a contact must match both.
+          required: false
+          schema:
+            type: string
+            example: "customer-1042"
+        - $ref: "../schemas/conversation.yaml#/page_param"
+        - $ref: "../schemas/conversation.yaml#/per_page_param"
+      responses:
+        "200":
+          description: OK - Request succeeded. `contacts` is empty when no contact matches the filters.
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/contact.yaml#/components/schemas/contact_list_response"
+        "422":
+          description: Unprocessable Entity - A filter was passed as something other than a single string, such as an array
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+              example:
+                error: "email and user_identifier must be strings."
+
+  /visitors/{contact_id}:
+    get:
+      summary: Get contact details
+      tags:
+        - Contacts
+      description: Retrieves a contact, including the values of its contact fields.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/contact.yaml#/contact_id_param"
+      responses:
+        "200":
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/contact.yaml#/components/schemas/contact_response"
+        "404":
+          description: Not Found - No contact with this id exists in the workspace
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+              example:
+                error: "Insights::Visitor does not exist."

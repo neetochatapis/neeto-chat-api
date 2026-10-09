@@ -71,6 +71,14 @@
             ]
           },
           {
+            "group": "Contacts",
+            "icon": "address-book",
+            "pages": [
+              "api-reference/contacts/list",
+              "api-reference/contacts/get"
+            ]
+          },
+          {
             "group": "Team Members",
             "icon": "user-group",
             "pages": [

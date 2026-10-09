@@ -1,0 +1,227 @@
+openapi: 3.0.3
+info:
+  title: NeetoChat Contacts APIs
+  version: 1.0.0
+servers:
+  - description: NeetoChat APIs
+    url: https://{your-subdomain}.neetochat.com/api/external/v2
+    variables:
+      your-subdomain:
+        default: spinkart
+        description: Replace **spinkart** with your [workspace's subdomain](/getting-started/workspace-subdomain).
+tags:
+  - name: Contacts
+    description: APIs to look up contacts in the workspace.
+paths:
+  /visitors:
+    get:
+      summary: List contacts
+      tags:
+        - Contacts
+      description: |
+        List contacts in the workspace, oldest first. Contacts created at the same time are ordered by `id`.
+
+        Filter by `email` or `user_identifier` to find the contacts for a person. Neither value is unique in a workspace: the chat widget creates a separate contact for each browser a person chats from, so one person can have several contacts with the same email. These filters therefore return a list, which can contain more than one contact.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+        - in: query
+          name: email
+          description: Return only contacts with this email. The match ignores case.
+          required: false
+          schema:
+            type: string
+            format: email
+            example: sam@example.com
+        - in: query
+          name: user_identifier
+          description: Return only contacts with this `user_identifier`. When combined with `email`, a contact must match both.
+          required: false
+          schema:
+            type: string
+            example: customer-1042
+        - $ref: '#/components/parameters/page_param'
+        - $ref: '#/components/parameters/per_page_param'
+      responses:
+        '200':
+          description: OK - Request succeeded. `contacts` is empty when no contact matches the filters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contact_list_response'
+        '422':
+          description: Unprocessable Entity - A filter was passed as something other than a single string, such as an array
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+              example:
+                error: email and user_identifier must be strings.
+  /visitors/{contact_id}:
+    get:
+      summary: Get contact details
+      tags:
+        - Contacts
+      description: Retrieves a contact, including the values of its contact fields.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+        - $ref: '#/components/parameters/contact_id_param'
+      responses:
+        '200':
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contact_response'
+        '404':
+          description: Not Found - No contact with this id exists in the workspace
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+              example:
+                error: Insights::Visitor does not exist.
+components:
+  parameters:
+    api_key_header:
+      in: header
+      name: X-Api-Key
+      description: Use the X-Api-Key header to provide your workspace API key. Refer to [Authentication](/getting-started/authentication) for more information.
+      required: true
+      schema:
+        type: string
+        default: your-api-key
+    accept_header:
+      in: header
+      name: Accept
+      description: Specifies the expected response format. Must be set to `application/json` for proper API communication.
+      required: true
+      schema:
+        type: string
+        enum:
+          - application/json
+        default: application/json
+    page_param:
+      in: query
+      name: page
+      description: Page number to retrieve, starting from 1. Defaults to 1 when omitted.
+      required: false
+      schema:
+        type: integer
+        example: 1
+    per_page_param:
+      in: query
+      name: per_page
+      description: Number of records per page. Defaults to 15 when omitted, and values above 100 are capped at 100. `page_size` is accepted as an alias.
+      required: false
+      schema:
+        type: integer
+        example: 15
+    contact_id_param:
+      in: path
+      name: contact_id
+      description: Id of the contact. You can get `contact_id` by listing contacts using our [List contacts](/api-reference/contacts/list) API, or from the `visitor.id` of a conversation.
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: 2c79a334-0bc8-44e4-9504-331f59d400ab
+  schemas:
+    contact_field_value:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+          description: Id of the contact field.
+          example: bac73249-2ef5-46f6-b80d-78271914c2a6
+        field_name:
+          type: string
+          description: Name of the contact field.
+          example: Plan tier
+        value:
+          description: Value stored for the field. Its type depends on the kind of field, such as a string for a text field or an array for a multi-option field.
+          example: Enterprise
+    contact:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 2c79a334-0bc8-44e4-9504-331f59d400ab
+        name:
+          type: string
+          example: Sam Brown
+        email:
+          type: string
+          nullable: true
+          example: sam@example.com
+        phone_number:
+          type: string
+          nullable: true
+          example: '+14155550123'
+        user_identifier:
+          type: string
+          nullable: true
+          description: Your own identifier for the contact.
+          example: customer-1042
+        traits:
+          type: object
+          nullable: true
+          description: Custom attributes stored on the contact.
+          additionalProperties: true
+          example:
+            plan: Pro
+        created_at:
+          type: string
+          format: date-time
+          example: '2026-10-08T14:35:46.785Z'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2026-10-08T14:35:46.785Z'
+        field_values:
+          type: array
+          description: Values the contact holds for the workspace's contact fields. Fields without a value are left out.
+          items:
+            $ref: '#/components/schemas/contact_field_value'
+    pagination:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          description: Current page number.
+          example: 1
+        total_pages:
+          type: integer
+          description: Total number of pages available.
+          example: 4
+        total_count:
+          type: integer
+          description: Total number of records across all pages.
+          example: 52
+        per_page:
+          type: integer
+          description: Number of records per page.
+          example: 15
+    contact_list_response:
+      type: object
+      properties:
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/contact'
+        pagination:
+          $ref: '#/components/schemas/pagination'
+    error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Conversation does not exist.
+    contact_response:
+      type: object
+      properties:
+        contact:
+          $ref: '#/components/schemas/contact'

@@ -1,0 +1,89 @@
+contact_id_param:
+  in: path
+  name: contact_id
+  description: Id of the contact. You can get `contact_id` by listing contacts using our [List contacts](/api-reference/contacts/list) API, or from the `visitor.id` of a conversation.
+  required: true
+  schema:
+    type: string
+    format: uuid
+    example: "2c79a334-0bc8-44e4-9504-331f59d400ab"
+
+components:
+  schemas:
+    # Value a contact holds for one of the workspace's contact fields
+    contact_field_value:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+          description: Id of the contact field.
+          example: "bac73249-2ef5-46f6-b80d-78271914c2a6"
+        field_name:
+          type: string
+          description: Name of the contact field.
+          example: "Plan tier"
+        value:
+          description: Value stored for the field. Its type depends on the kind of field, such as a string for a text field or an array for a multi-option field.
+          example: "Enterprise"
+
+    # Contact object structure
+    contact:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "2c79a334-0bc8-44e4-9504-331f59d400ab"
+        name:
+          type: string
+          example: "Sam Brown"
+        email:
+          type: string
+          nullable: true
+          example: "sam@example.com"
+        phone_number:
+          type: string
+          nullable: true
+          example: "+14155550123"
+        user_identifier:
+          type: string
+          nullable: true
+          description: Your own identifier for the contact.
+          example: "customer-1042"
+        traits:
+          type: object
+          nullable: true
+          description: Custom attributes stored on the contact.
+          additionalProperties: true
+          example:
+            plan: "Pro"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-10-08T14:35:46.785Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-10-08T14:35:46.785Z"
+        field_values:
+          type: array
+          description: Values the contact holds for the workspace's contact fields. Fields without a value are left out.
+          items:
+            $ref: '#/components/schemas/contact_field_value'
+
+    contact_response:
+      type: object
+      properties:
+        contact:
+          $ref: '#/components/schemas/contact'
+
+    contact_list_response:
+      type: object
+      properties:
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/contact'
+        pagination:
+          $ref: '../schemas/conversation.yaml#/components/schemas/pagination'
