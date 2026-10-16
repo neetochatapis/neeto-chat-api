@@ -11,7 +11,7 @@ servers:
         description: Replace **spinkart** with your [workspace's subdomain](/getting-started/workspace-subdomain).
 tags:
   - name: Contacts
-    description: APIs to look up contacts in the workspace.
+    description: APIs to look up and create contacts in the workspace.
 paths:
   /visitors:
     get:
@@ -57,6 +57,98 @@ paths:
                 $ref: '#/components/schemas/error'
               example:
                 error: email and user_identifier must be strings.
+    post:
+      summary: Create contact
+      tags:
+        - Contacts
+      description: Add a contact to the workspace.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the contact. Defaults to `Visitor` when omitted or blank.
+                  example: Sam Brown
+                email:
+                  type: string
+                  format: email
+                  description: Email of the contact. It is stored in lowercase, and an address that is not well-formed rejects the whole request.
+                  example: sam@example.com
+                phone_number:
+                  type: string
+                  example: '+14155550123'
+                user_identifier:
+                  type: string
+                  description: Your own identifier for the contact, such as its id in your database or CRM. It is stored as sent and is not used to look up an existing contact.
+                  example: crm-user-123
+                traits:
+                  type: object
+                  description: Custom attributes to store on the contact, as free-form key-value pairs. The keys `name`, `email` and `user_identifier` are dropped here, since those are top-level fields.
+                  additionalProperties: true
+                  example:
+                    plan: Pro
+                    country: US
+                field_values_attributes:
+                  type: array
+                  description: Values for the contact fields configured in your workspace, under **Settings > Contact fields**. Every `field_id` must be a contact field of your workspace, otherwise nothing is created.
+                  items:
+                    type: object
+                    properties:
+                      field_id:
+                        type: string
+                        format: uuid
+                        description: Id of the contact field. It is the field's UUID, not the **Key** shown on the Contact fields page.
+                        example: 7f1f1f36-1f0f-4a0e-9b1f-2b0f3c4d5e6f
+                      data:
+                        type: object
+                        description: |
+                          The field's value, under a `value` key.
+
+                          The accepted type follows the field's kind. A text field takes a string, a number field takes a number or a string that reads as one, and a date and time field takes an ISO 8601 string. A value the field's kind does not accept, or a number outside a range configured on the field, rejects the whole request.
+                        properties:
+                          value:
+                            description: The field's value.
+                            example: Enterprise
+                        required:
+                          - value
+                        example:
+                          value: Enterprise
+                    required:
+                      - field_id
+                      - data
+      responses:
+        '201':
+          description: Created - Contact created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contact_response'
+        '422':
+          description: Unprocessable Entity - The request body is invalid, and no contact is created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+              examples:
+                invalid_email:
+                  summary: Malformed email
+                  value:
+                    error: Email is invalid
+                unknown_field:
+                  summary: field_id is not a contact field of this workspace
+                  value:
+                    error: Field values contain invalid field IDs.
+                invalid_field_value:
+                  summary: Field value the field's kind does not accept
+                  value:
+                    error: Field values data has invalid number value
   /visitors/{contact_id}:
     get:
       summary: Get contact details

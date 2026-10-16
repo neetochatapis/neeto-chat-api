@@ -75,6 +75,7 @@
             "icon": "address-book",
             "pages": [
               "api-reference/contacts/list",
+              "api-reference/contacts/add",
               "api-reference/contacts/get"
             ]
           },
