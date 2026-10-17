@@ -70,7 +70,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+                $ref: "../schemas/common.yaml#/components/schemas/error"
               example:
                 error: "Invalid updated_after value. It must be an ISO 8601 timestamp."
 
@@ -218,7 +218,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+                $ref: "../schemas/common.yaml#/components/schemas/error"
               examples:
                 missing_message:
                   summary: No message
@@ -267,7 +267,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+                $ref: "../schemas/common.yaml#/components/schemas/error"
+              example:
+                error: "Conversation does not exist."
 
     patch:
       summary: Update conversation
@@ -333,13 +335,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+                $ref: "../schemas/common.yaml#/components/schemas/error"
+              example:
+                error: "Conversation does not exist."
         "422":
           description: Unprocessable Entity - The request body is invalid
           content:
             application/json:
               schema:
-                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+                $ref: "../schemas/common.yaml#/components/schemas/error"
               examples:
                 invalid_ticket_field:
                   summary: Unknown ticket field
@@ -374,7 +378,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+                $ref: "../schemas/common.yaml#/components/schemas/error"
+              example:
+                error: "Conversation does not exist."
 
     post:
       summary: Send message
@@ -453,13 +459,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+                $ref: "../schemas/common.yaml#/components/schemas/error"
+              example:
+                error: "Conversation does not exist."
         "422":
           description: Unprocessable Entity - The request body is invalid
           content:
             application/json:
               schema:
-                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+                $ref: "../schemas/common.yaml#/components/schemas/error"
               example:
                 error: "Only agents can add notes. sender_email must belong to an agent."
 
@@ -493,4 +501,4 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+                $ref: "../schemas/common.yaml#/components/schemas/error"

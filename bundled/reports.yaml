@@ -1,0 +1,401 @@
+openapi: 3.0.3
+info:
+  title: NeetoChat Reports APIs
+  version: 1.0.0
+servers:
+  - description: NeetoChat APIs
+    url: https://{your-subdomain}.neetochat.com/api/external/v2
+    variables:
+      your-subdomain:
+        default: spinkart
+        description: Replace **spinkart** with your [workspace's subdomain](/getting-started/workspace-subdomain).
+tags:
+  - name: Reports
+    description: APIs to retrieve reporting metrics for the workspace.
+paths:
+  /reports/conversations:
+    get:
+      summary: Get conversations report
+      tags:
+        - Reports
+      description: |
+        Returns conversation volume metrics for the workspace over a date range, each compared against the immediately preceding period of the same length.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+        - $ref: '#/components/parameters/range_type_param'
+        - $ref: '#/components/parameters/start_date_param'
+        - $ref: '#/components/parameters/end_date_param'
+      responses:
+        '200':
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/conversations_report_response'
+              example:
+                conversations_report:
+                  - name: open_chats_count
+                    value:
+                      present: 30
+                      previous: 20
+                      change_percentage: 50
+                  - name: closed_chats_count
+                    value:
+                      present: 8
+                      previous: 5
+                      change_percentage: 60
+                  - name: new_chats_count
+                    value:
+                      present: 72
+                      previous: 60
+                      change_percentage: 20
+                  - name: replies_sent_count
+                    value:
+                      present: 75
+                      previous: 50
+                      change_percentage: 50
+                  - name: replied_chats_count
+                    value:
+                      present: 40
+                      previous: 32
+                      change_percentage: 25
+                  - name: unassigned_chats_count
+                    value:
+                      present: 11
+                      previous: 8
+                      change_percentage: 37.5
+        '400':
+          description: Bad Request - The date range is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+              examples:
+                invalid_range_type:
+                  summary: Unrecognized range_type
+                  value:
+                    error: 'Invalid date range name: not_a_real_range.'
+                invalid_format:
+                  summary: Unparsable date
+                  value:
+                    error: Invalid start_date. It must be a date in the 'YYYY-MM-DD' format.
+  /reports/customer_satisfactions:
+    get:
+      summary: Get customer satisfaction report
+      tags:
+        - Reports
+      description: |
+        Returns the workspace's customer satisfaction (CSAT) ratings over a date range, broken down by day and by rating.
+
+        Ratings come from the rating question on the post-chat survey. `csat_report` is `null` when the workspace has no such question configured.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+        - $ref: '#/components/parameters/range_type_param'
+        - $ref: '#/components/parameters/start_date_param'
+        - $ref: '#/components/parameters/end_date_param'
+      responses:
+        '200':
+          description: OK - Request succeeded. `csat_report` is `null` when no rating question is configured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/customer_satisfaction_response'
+              example:
+                csat_report:
+                  dates:
+                    - '2026-10-14'
+                    - '2026-10-15'
+                    - '2026-10-16'
+                    - '2026-10-17'
+                  data:
+                    - name: good
+                      values:
+                        - 3
+                        - 2
+                        - 4
+                        - 3
+                    - name: okay
+                      values:
+                        - 1
+                        - 2
+                        - 1
+                        - 1
+                    - name: bad
+                      values:
+                        - 1
+                        - 1
+                        - 1
+                        - 1
+                  percentages:
+                    good: 57
+                    okay: 24
+                    bad: 19
+        '400':
+          description: Bad Request - The date range is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+              examples:
+                invalid_range_type:
+                  summary: Unrecognized range_type
+                  value:
+                    error: 'Invalid date range name: not_a_real_range.'
+                invalid_format:
+                  summary: Unparsable date
+                  value:
+                    error: Invalid start_date. It must be a date in the 'YYYY-MM-DD' format.
+  /reports/groups:
+    get:
+      summary: Get groups report
+      tags:
+        - Reports
+      description: |
+        Returns conversation metrics for every group in the workspace over a date range, each compared against the immediately preceding period of the same length. All groups are returned; the response is not paginated.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+        - $ref: '#/components/parameters/range_type_param'
+        - $ref: '#/components/parameters/start_date_param'
+        - $ref: '#/components/parameters/end_date_param'
+      responses:
+        '200':
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/groups_report_response'
+              example:
+                groups:
+                  - id: 42052a48-321b-4e6e-9c38-43b6fa467973
+                    name: Customer Support
+                    assigned_conversations_count:
+                      present: 0
+                      previous: 0
+                      change_percentage: null
+                    open_conversations_count:
+                      present: 0
+                      previous: 0
+                      change_percentage: null
+                    closed_conversations_count:
+                      present: 0
+                      previous: 0
+                      change_percentage: null
+                  - id: abd828dd-bcfe-4197-ac1f-d7ca796b3ae0
+                    name: Sales
+                    assigned_conversations_count:
+                      present: 3
+                      previous: 0
+                      change_percentage: null
+                    open_conversations_count:
+                      present: 1
+                      previous: 0
+                      change_percentage: null
+                    closed_conversations_count:
+                      present: 0
+                      previous: 0
+                      change_percentage: null
+                total_count: 2
+        '400':
+          description: Bad Request - The date range is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+              examples:
+                invalid_range_type:
+                  summary: Unrecognized range_type
+                  value:
+                    error: 'Invalid date range name: not_a_real_range.'
+                invalid_format:
+                  summary: Unparsable date
+                  value:
+                    error: Invalid start_date. It must be a date in the 'YYYY-MM-DD' format.
+components:
+  parameters:
+    api_key_header:
+      in: header
+      name: X-Api-Key
+      description: Use the X-Api-Key header to provide your workspace API key. Refer to [Authentication](/getting-started/authentication) for more information.
+      required: true
+      schema:
+        type: string
+        default: your-api-key
+    accept_header:
+      in: header
+      name: Accept
+      description: Specifies the expected response format. Must be set to `application/json` for proper API communication.
+      required: true
+      schema:
+        type: string
+        enum:
+          - application/json
+        default: application/json
+    range_type_param:
+      in: query
+      name: range_type
+      description: |
+        Pass `custom_duration` (or omit `range_type` while passing `start_date`/`end_date`) to report on an explicit range instead. When `range_type`, `start_date` and `end_date` are all omitted, the range defaults to `all_time`.
+      required: false
+      schema:
+        type: string
+        enum:
+          - last_7_days
+          - last_30_days
+          - last_24_hours
+          - this_month
+          - last_month
+          - this_year
+          - last_year
+          - this_quarter
+          - last_quarter
+          - this_week
+          - last_week
+          - all_time
+          - custom_duration
+        example: last_7_days
+    start_date_param:
+      in: query
+      name: start_date
+      description: Start of the date range to report on, as a `YYYY-MM-DD` date. Only used when `range_type` is `custom_duration` or omitted; ignored when `range_type` names a predefined range. Defaults to the workspace's creation date when omitted.
+      required: false
+      schema:
+        type: string
+        format: date
+        example: '2026-10-01'
+    end_date_param:
+      in: query
+      name: end_date
+      description: End of the date range to report on, as a `YYYY-MM-DD` date. Only used when `range_type` is `custom_duration` or omitted; ignored when `range_type` names a predefined range. Defaults to today when omitted.
+      required: false
+      schema:
+        type: string
+        format: date
+        example: '2026-10-17'
+  schemas:
+    change_metric:
+      type: object
+      properties:
+        present:
+          type: integer
+          description: Value for the requested date range.
+          example: 4
+        previous:
+          type: integer
+          description: Value for the immediately preceding period of the same length.
+          example: 2
+        change_percentage:
+          type: number
+          nullable: true
+          description: Percentage change from `previous` to `present`. `null` when `previous` or `present` is zero.
+          example: 100
+    conversations_report_metric:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+            - open_chats_count
+            - closed_chats_count
+            - new_chats_count
+            - replies_sent_count
+            - replied_chats_count
+            - unassigned_chats_count
+          example: open_chats_count
+        value:
+          $ref: '#/components/schemas/change_metric'
+    conversations_report_response:
+      type: object
+      properties:
+        conversations_report:
+          type: array
+          items:
+            $ref: '#/components/schemas/conversations_report_metric'
+    error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: The request could not be processed.
+    csat_report:
+      type: object
+      nullable: true
+      description: Customer satisfaction data for the date range. `null` when the workspace has no rating question configured in its post-chat survey.
+      properties:
+        dates:
+          type: array
+          description: Every date in the requested range, oldest first.
+          items:
+            type: string
+            format: date
+          example:
+            - '2026-10-16'
+            - '2026-10-17'
+        data:
+          type: array
+          description: One entry per rating, each holding a count for every date in `dates`, in the same order.
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                enum:
+                  - good
+                  - okay
+                  - bad
+                example: good
+              values:
+                type: array
+                items:
+                  type: integer
+                example:
+                  - 2
+                  - 1
+        percentages:
+          type: object
+          description: Share of total responses for each rating, rounded to the nearest integer percent. All zero when there are no responses in the range.
+          properties:
+            good:
+              type: integer
+              example: 62
+            okay:
+              type: integer
+              example: 15
+            bad:
+              type: integer
+              example: 23
+    customer_satisfaction_response:
+      type: object
+      properties:
+        csat_report:
+          $ref: '#/components/schemas/csat_report'
+    group_report:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: abd828dd-bcfe-4197-ac1f-d7ca796b3ae0
+        name:
+          type: string
+          example: Sales
+        assigned_conversations_count:
+          $ref: '#/components/schemas/change_metric'
+        open_conversations_count:
+          $ref: '#/components/schemas/change_metric'
+        closed_conversations_count:
+          $ref: '#/components/schemas/change_metric'
+    groups_report_response:
+      type: object
+      properties:
+        groups:
+          type: array
+          description: Every group in the workspace. The response is not paginated.
+          items:
+            $ref: '#/components/schemas/group_report'
+        total_count:
+          type: integer
+          description: Number of groups in `groups`.
+          example: 1

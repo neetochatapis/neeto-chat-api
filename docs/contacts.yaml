@@ -52,7 +52,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+                $ref: "../schemas/common.yaml#/components/schemas/error"
               example:
                 error: "email and user_identifier must be strings."
 
@@ -134,7 +134,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+                $ref: "../schemas/common.yaml#/components/schemas/error"
               examples:
                 invalid_email:
                   summary: Malformed email
@@ -171,6 +171,6 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "../schemas/conversation.yaml#/components/schemas/error"
+                $ref: "../schemas/common.yaml#/components/schemas/error"
               example:
                 error: "Insights::Visitor does not exist."

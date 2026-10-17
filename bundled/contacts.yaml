@@ -311,7 +311,7 @@ components:
       properties:
         error:
           type: string
-          example: Conversation does not exist.
+          example: The request could not be processed.
     contact_response:
       type: object
       properties:

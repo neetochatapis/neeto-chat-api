@@ -80,6 +80,15 @@
             ]
           },
           {
+            "group": "Reports",
+            "icon": "chart-line",
+            "pages": [
+              "api-reference/reports/get-conversations",
+              "api-reference/reports/get-customer-satisfaction",
+              "api-reference/reports/get-groups"
+            ]
+          },
+          {
             "group": "Team Members",
             "icon": "user-group",
             "pages": [

@@ -90,3 +90,11 @@ components:
         page_size:
           type: integer
           description: Number of records per page.
+
+    # Error response shared by every endpoint
+    error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "The request could not be processed."

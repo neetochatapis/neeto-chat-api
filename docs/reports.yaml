@@ -1,0 +1,160 @@
+openapi: 3.0.3
+info:
+  title: NeetoChat Reports APIs
+  version: 1.0.0
+
+servers:
+  $ref: "../schemas/common.yaml#/servers"
+
+tags:
+  - name: Reports
+    description: APIs to retrieve reporting metrics for the workspace.
+
+paths:
+  /reports/conversations:
+    get:
+      summary: Get conversations report
+      tags:
+        - Reports
+      description: |
+        Returns conversation volume metrics for the workspace over a date range, each compared against the immediately preceding period of the same length.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/report.yaml#/range_type_param"
+        - $ref: "../schemas/report.yaml#/start_date_param"
+        - $ref: "../schemas/report.yaml#/end_date_param"
+      responses:
+        "200":
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/report.yaml#/components/schemas/conversations_report_response"
+              example:
+                conversations_report:
+                  - name: open_chats_count
+                    value: { present: 30, previous: 20, change_percentage: 50.0 }
+                  - name: closed_chats_count
+                    value: { present: 8, previous: 5, change_percentage: 60.0 }
+                  - name: new_chats_count
+                    value: { present: 72, previous: 60, change_percentage: 20.0 }
+                  - name: replies_sent_count
+                    value: { present: 75, previous: 50, change_percentage: 50.0 }
+                  - name: replied_chats_count
+                    value: { present: 40, previous: 32, change_percentage: 25.0 }
+                  - name: unassigned_chats_count
+                    value: { present: 11, previous: 8, change_percentage: 37.5 }
+        "400":
+          description: Bad Request - The date range is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/common.yaml#/components/schemas/error"
+              examples:
+                invalid_range_type:
+                  summary: Unrecognized range_type
+                  value:
+                    error: "Invalid date range name: not_a_real_range."
+                invalid_format:
+                  summary: Unparsable date
+                  value:
+                    error: "Invalid start_date. It must be a date in the 'YYYY-MM-DD' format."
+
+  /reports/customer_satisfactions:
+    get:
+      summary: Get customer satisfaction report
+      tags:
+        - Reports
+      description: |
+        Returns the workspace's customer satisfaction (CSAT) ratings over a date range, broken down by day and by rating.
+
+        Ratings come from the rating question on the post-chat survey. `csat_report` is `null` when the workspace has no such question configured.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/report.yaml#/range_type_param"
+        - $ref: "../schemas/report.yaml#/start_date_param"
+        - $ref: "../schemas/report.yaml#/end_date_param"
+      responses:
+        "200":
+          description: OK - Request succeeded. `csat_report` is `null` when no rating question is configured.
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/report.yaml#/components/schemas/customer_satisfaction_response"
+              example:
+                csat_report:
+                  dates: ["2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17"]
+                  data:
+                    - name: good
+                      values: [3, 2, 4, 3]
+                    - name: okay
+                      values: [1, 2, 1, 1]
+                    - name: bad
+                      values: [1, 1, 1, 1]
+                  percentages: { good: 57, okay: 24, bad: 19 }
+        "400":
+          description: Bad Request - The date range is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/common.yaml#/components/schemas/error"
+              examples:
+                invalid_range_type:
+                  summary: Unrecognized range_type
+                  value:
+                    error: "Invalid date range name: not_a_real_range."
+                invalid_format:
+                  summary: Unparsable date
+                  value:
+                    error: "Invalid start_date. It must be a date in the 'YYYY-MM-DD' format."
+
+  /reports/groups:
+    get:
+      summary: Get groups report
+      tags:
+        - Reports
+      description: |
+        Returns conversation metrics for every group in the workspace over a date range, each compared against the immediately preceding period of the same length. All groups are returned; the response is not paginated.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/report.yaml#/range_type_param"
+        - $ref: "../schemas/report.yaml#/start_date_param"
+        - $ref: "../schemas/report.yaml#/end_date_param"
+      responses:
+        "200":
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/report.yaml#/components/schemas/groups_report_response"
+              example:
+                groups:
+                  - id: "42052a48-321b-4e6e-9c38-43b6fa467973"
+                    name: "Customer Support"
+                    assigned_conversations_count: { present: 0, previous: 0, change_percentage: null }
+                    open_conversations_count: { present: 0, previous: 0, change_percentage: null }
+                    closed_conversations_count: { present: 0, previous: 0, change_percentage: null }
+                  - id: "abd828dd-bcfe-4197-ac1f-d7ca796b3ae0"
+                    name: "Sales"
+                    assigned_conversations_count: { present: 3, previous: 0, change_percentage: null }
+                    open_conversations_count: { present: 1, previous: 0, change_percentage: null }
+                    closed_conversations_count: { present: 0, previous: 0, change_percentage: null }
+                total_count: 2
+        "400":
+          description: Bad Request - The date range is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/common.yaml#/components/schemas/error"
+              examples:
+                invalid_range_type:
+                  summary: Unrecognized range_type
+                  value:
+                    error: "Invalid date range name: not_a_real_range."
+                invalid_format:
+                  summary: Unparsable date
+                  value:
+                    error: "Invalid start_date. It must be a date in the 'YYYY-MM-DD' format."

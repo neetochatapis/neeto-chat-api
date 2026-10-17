@@ -50,13 +50,6 @@ components:
           description: Number of records per page.
           example: 15
 
-    error:
-      type: object
-      properties:
-        error:
-          type: string
-          example: "Conversation does not exist."
-
     conversation:
       type: object
       properties:

@@ -1,0 +1,165 @@
+# Query parameters shared by the report endpoints
+range_type_param:
+  in: query
+  name: range_type
+  description: |
+    Pass `custom_duration` (or omit `range_type` while passing `start_date`/`end_date`) to report on an explicit range instead. When `range_type`, `start_date` and `end_date` are all omitted, the range defaults to `all_time`.
+  required: false
+  schema:
+    type: string
+    enum:
+      - last_7_days
+      - last_30_days
+      - last_24_hours
+      - this_month
+      - last_month
+      - this_year
+      - last_year
+      - this_quarter
+      - last_quarter
+      - this_week
+      - last_week
+      - all_time
+      - custom_duration
+    example: "last_7_days"
+
+start_date_param:
+  in: query
+  name: start_date
+  description: Start of the date range to report on, as a `YYYY-MM-DD` date. Only used when `range_type` is `custom_duration` or omitted; ignored when `range_type` names a predefined range. Defaults to the workspace's creation date when omitted.
+  required: false
+  schema:
+    type: string
+    format: date
+    example: "2026-10-01"
+
+end_date_param:
+  in: query
+  name: end_date
+  description: End of the date range to report on, as a `YYYY-MM-DD` date. Only used when `range_type` is `custom_duration` or omitted; ignored when `range_type` names a predefined range. Defaults to today when omitted.
+  required: false
+  schema:
+    type: string
+    format: date
+    example: "2026-10-17"
+
+components:
+  schemas:
+    # A metric reported as the current period's value, the previous period's value, and the change between them
+    change_metric:
+      type: object
+      properties:
+        present:
+          type: integer
+          description: Value for the requested date range.
+          example: 4
+        previous:
+          type: integer
+          description: Value for the immediately preceding period of the same length.
+          example: 2
+        change_percentage:
+          type: number
+          nullable: true
+          description: Percentage change from `previous` to `present`. `null` when `previous` or `present` is zero.
+          example: 100.0
+
+    conversations_report_metric:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+            - open_chats_count
+            - closed_chats_count
+            - new_chats_count
+            - replies_sent_count
+            - replied_chats_count
+            - unassigned_chats_count
+          example: "open_chats_count"
+        value:
+          $ref: '#/components/schemas/change_metric'
+
+    conversations_report_response:
+      type: object
+      properties:
+        conversations_report:
+          type: array
+          items:
+            $ref: '#/components/schemas/conversations_report_metric'
+
+    csat_report:
+      type: object
+      nullable: true
+      description: Customer satisfaction data for the date range. `null` when the workspace has no rating question configured in its post-chat survey.
+      properties:
+        dates:
+          type: array
+          description: Every date in the requested range, oldest first.
+          items:
+            type: string
+            format: date
+          example: ["2026-10-16", "2026-10-17"]
+        data:
+          type: array
+          description: One entry per rating, each holding a count for every date in `dates`, in the same order.
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                enum: ["good", "okay", "bad"]
+                example: "good"
+              values:
+                type: array
+                items:
+                  type: integer
+                example: [2, 1]
+        percentages:
+          type: object
+          description: Share of total responses for each rating, rounded to the nearest integer percent. All zero when there are no responses in the range.
+          properties:
+            good:
+              type: integer
+              example: 62
+            okay:
+              type: integer
+              example: 15
+            bad:
+              type: integer
+              example: 23
+
+    customer_satisfaction_response:
+      type: object
+      properties:
+        csat_report:
+          $ref: '#/components/schemas/csat_report'
+
+    group_report:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "abd828dd-bcfe-4197-ac1f-d7ca796b3ae0"
+        name:
+          type: string
+          example: "Sales"
+        assigned_conversations_count:
+          $ref: '#/components/schemas/change_metric'
+        open_conversations_count:
+          $ref: '#/components/schemas/change_metric'
+        closed_conversations_count:
+          $ref: '#/components/schemas/change_metric'
+
+    groups_report_response:
+      type: object
+      properties:
+        groups:
+          type: array
+          description: Every group in the workspace. The response is not paginated.
+          items:
+            $ref: '#/components/schemas/group_report'
+        total_count:
+          type: integer
+          description: Number of groups in `groups`.
+          example: 1
