@@ -1,5 +1,258 @@
 [
   {
+    "command": "neetochat conversations",
+    "description": "Manage conversations",
+    "subcommands": [
+      {
+        "command": "neetochat conversations create",
+        "description": "Start a conversation",
+        "flags": [
+          {
+            "name": "email",
+            "type": "string",
+            "description": "Visitor email",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Visitor name"
+          },
+          {
+            "name": "phone-number",
+            "type": "string",
+            "description": "Visitor phone number"
+          },
+          {
+            "name": "user-identifier",
+            "type": "string",
+            "description": "Visitor identifier from your own system"
+          },
+          {
+            "name": "trait",
+            "type": "stringToString",
+            "default": "[]",
+            "description": "Visitor trait as key=value (repeat the flag for more than one)"
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "description": "The opening message body",
+            "required": true
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "description": "Conversation title"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "Conversation status"
+          },
+          {
+            "name": "priority",
+            "type": "string",
+            "description": "Conversation priority"
+          },
+          {
+            "name": "origin-page-url",
+            "type": "string",
+            "description": "URL of the page the visitor started the chat from"
+          },
+          {
+            "name": "origin-page-title",
+            "type": "string",
+            "description": "Title of the page the visitor started the chat from"
+          },
+          {
+            "name": "assignee-email",
+            "type": "string",
+            "description": "Agent email to assign"
+          },
+          {
+            "name": "group-name",
+            "type": "string",
+            "description": "Group name to assign"
+          },
+          {
+            "name": "tag",
+            "type": "stringArray",
+            "default": "[]",
+            "description": "Tag name to apply (repeat the flag for more than one)"
+          },
+          {
+            "name": "ticket-field",
+            "type": "stringToString",
+            "default": "[]",
+            "description": "Custom field value as name=value (repeat the flag for more than one)"
+          },
+          {
+            "name": "external-id",
+            "type": "string",
+            "description": "Your own identifier for this conversation, for idempotent creation"
+          }
+        ]
+      },
+      {
+        "command": "neetochat conversations list",
+        "description": "List conversations",
+        "flags": [
+          {
+            "name": "status",
+            "type": "string",
+            "description": "Filter by status (comma-separated, e.g. open,closed)"
+          },
+          {
+            "name": "updated-after",
+            "type": "string",
+            "description": "Only conversations updated after this ISO8601 timestamp"
+          },
+          {
+            "name": "sort",
+            "type": "string",
+            "default": "created_at",
+            "description": "Sort field: created_at or updated_at"
+          },
+          {
+            "name": "order",
+            "type": "string",
+            "default": "asc",
+            "description": "Sort direction: asc or desc"
+          },
+          {
+            "name": "page",
+            "type": "int",
+            "default": "0",
+            "description": "Page number"
+          },
+          {
+            "name": "page-size",
+            "type": "int",
+            "default": "0",
+            "description": "Items per page (max 100)"
+          }
+        ]
+      },
+      {
+        "command": "neetochat conversations messages",
+        "description": "Manage conversation messages",
+        "subcommands": [
+          {
+            "command": "neetochat conversations messages create",
+            "description": "Add a message to a conversation",
+            "flags": [
+              {
+                "name": "body",
+                "type": "string",
+                "description": "Message body",
+                "required": true
+              },
+              {
+                "name": "sender-email",
+                "type": "string",
+                "description": "Email of the sender (an agent or the visitor)",
+                "required": true
+              },
+              {
+                "name": "kind",
+                "type": "string",
+                "default": "user_message",
+                "description": "Message kind: user_message or note"
+              },
+              {
+                "name": "mention",
+                "type": "stringArray",
+                "default": "[]",
+                "description": "Agent email to mention (note only; repeat the flag for more than one)"
+              },
+              {
+                "name": "external-id",
+                "type": "string",
+                "description": "Your own identifier for this message, for idempotent creation"
+              }
+            ]
+          },
+          {
+            "command": "neetochat conversations messages list",
+            "description": "List messages in a conversation",
+            "flags": [
+              {
+                "name": "page",
+                "type": "int",
+                "default": "0",
+                "description": "Page number"
+              },
+              {
+                "name": "page-size",
+                "type": "int",
+                "default": "0",
+                "description": "Items per page (max 100)"
+              }
+            ]
+          },
+          {
+            "command": "neetochat conversations messages show",
+            "description": "Show a message in a conversation"
+          }
+        ]
+      },
+      {
+        "command": "neetochat conversations show",
+        "description": "Show a conversation"
+      },
+      {
+        "command": "neetochat conversations update",
+        "description": "Update a conversation",
+        "flags": [
+          {
+            "name": "title",
+            "type": "string",
+            "description": "Conversation title"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "Conversation status"
+          },
+          {
+            "name": "priority",
+            "type": "string",
+            "description": "Conversation priority"
+          },
+          {
+            "name": "assignee-email",
+            "type": "string",
+            "description": "Agent email to assign"
+          },
+          {
+            "name": "group-name",
+            "type": "string",
+            "description": "Group name to assign"
+          },
+          {
+            "name": "tag",
+            "type": "stringArray",
+            "default": "[]",
+            "description": "Tag name to apply (repeat the flag for more than one)"
+          },
+          {
+            "name": "ticket-field",
+            "type": "stringToString",
+            "default": "[]",
+            "description": "Custom field value as name=value (repeat the flag for more than one)"
+          },
+          {
+            "name": "read",
+            "type": "bool",
+            "default": "false",
+            "description": "Mark the conversation as read"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "command": "neetochat doctor",
     "description": "Check CLI health and connectivity"
   },
@@ -16,6 +269,75 @@
         "type": "bool",
         "default": "false",
         "description": "Sign out of every saved subdomain"
+      }
+    ]
+  },
+  {
+    "command": "neetochat reports",
+    "description": "View NeetoChat reports",
+    "subcommands": [
+      {
+        "command": "neetochat reports conversations",
+        "description": "Conversation volume change report",
+        "flags": [
+          {
+            "name": "end-date",
+            "type": "string",
+            "description": "End date for a custom range (YYYY-MM-DD)"
+          },
+          {
+            "name": "range-type",
+            "type": "string",
+            "description": "Date range type (e.g. last_7_days, last_30_days, custom_duration)"
+          },
+          {
+            "name": "start-date",
+            "type": "string",
+            "description": "Start date for a custom range (YYYY-MM-DD)"
+          }
+        ]
+      },
+      {
+        "command": "neetochat reports customer-satisfactions",
+        "description": "Customer satisfaction (CSAT) survey results report",
+        "flags": [
+          {
+            "name": "end-date",
+            "type": "string",
+            "description": "End date for a custom range (YYYY-MM-DD)"
+          },
+          {
+            "name": "range-type",
+            "type": "string",
+            "description": "Date range type (e.g. last_7_days, last_30_days, custom_duration)"
+          },
+          {
+            "name": "start-date",
+            "type": "string",
+            "description": "Start date for a custom range (YYYY-MM-DD)"
+          }
+        ]
+      },
+      {
+        "command": "neetochat reports groups",
+        "description": "Group performance report",
+        "flags": [
+          {
+            "name": "end-date",
+            "type": "string",
+            "description": "End date for a custom range (YYYY-MM-DD)"
+          },
+          {
+            "name": "range-type",
+            "type": "string",
+            "description": "Date range type (e.g. last_7_days, last_30_days, custom_duration)"
+          },
+          {
+            "name": "start-date",
+            "type": "string",
+            "description": "Start date for a custom range (YYYY-MM-DD)"
+          }
+        ]
       }
     ]
   },
@@ -148,6 +470,82 @@
   {
     "command": "neetochat version",
     "description": "Print the CLI version"
+  },
+  {
+    "command": "neetochat visitors",
+    "description": "Manage visitors",
+    "subcommands": [
+      {
+        "command": "neetochat visitors create",
+        "description": "Create a visitor",
+        "flags": [
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Visitor name"
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "description": "Visitor email"
+          },
+          {
+            "name": "phone-number",
+            "type": "string",
+            "description": "Visitor phone number"
+          },
+          {
+            "name": "user-identifier",
+            "type": "string",
+            "description": "Visitor identifier from your own system"
+          },
+          {
+            "name": "trait",
+            "type": "stringToString",
+            "default": "[]",
+            "description": "Visitor trait as key=value (repeat the flag for more than one)"
+          },
+          {
+            "name": "field",
+            "type": "stringToString",
+            "default": "[]",
+            "description": "Custom field value as field-id=value (repeat the flag for more than one)"
+          }
+        ]
+      },
+      {
+        "command": "neetochat visitors list",
+        "description": "List visitors",
+        "flags": [
+          {
+            "name": "email",
+            "type": "string",
+            "description": "Filter by email (not unique; may match more than one visitor)"
+          },
+          {
+            "name": "page",
+            "type": "int",
+            "default": "0",
+            "description": "Page number"
+          },
+          {
+            "name": "page-size",
+            "type": "int",
+            "default": "0",
+            "description": "Items per page (max 100)"
+          },
+          {
+            "name": "user-identifier",
+            "type": "string",
+            "description": "Filter by user identifier"
+          }
+        ]
+      },
+      {
+        "command": "neetochat visitors show",
+        "description": "Show a visitor"
+      }
+    ]
   },
   {
     "command": "neetochat whoami",

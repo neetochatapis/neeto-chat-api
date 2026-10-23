@@ -1,0 +1,152 @@
+---
+title: "Visitors"
+description: "List, inspect and create the people who chat with a workspace."
+---
+
+import VisitorsList from "/snippets/cli/visitors/list.mdx";
+import VisitorsCreate from "/snippets/cli/visitors/create.mdx";
+
+Commands for the people who chat with a workspace. The API calls this
+resource a contact; the CLI calls it a visitor. For fields and response
+details, see the [Contacts API reference](/api-reference/contacts/list).
+
+Samples on this page use `--json`, which is the format you get when output is
+piped as well. On a terminal without that flag the same data prints as a table.
+See [Output formats](/cli/output-formats).
+
+## List visitors
+
+Visitors in the workspace, oldest first. `--email` and `--user-identifier`
+are not unique: the chat widget creates a separate visitor for each browser a
+person chats from, so either filter can return more than one match.
+
+```bash
+neetochat visitors list --json
+```
+
+<VisitorsList />
+
+```json
+{
+  "data": [
+    {
+      "id": "2c79a334-0bc8-44e4-9504-331f59d400ab",
+      "name": "Sam Brown",
+      "email": "sam@example.com",
+      "phone_number": null,
+      "user_identifier": "customer-1042",
+      "traits": {
+        "plan": "Pro"
+      },
+      "created_at": "2026-10-08T14:35:46.785Z",
+      "updated_at": "2026-10-08T14:35:46.785Z",
+      "field_values": []
+    }
+  ],
+  "breadcrumbs": [
+    {
+      "label": "Show",
+      "command": "neetochat visitors show <id>"
+    }
+  ],
+  "pagination": {
+    "current_page_number": 1,
+    "total_pages": 1,
+    "total_records": 1,
+    "page_size": 30
+  }
+}
+```
+
+## Show a visitor
+
+One visitor by id, when you already have it and want the full record.
+
+```bash
+neetochat visitors show 2c79a334-0bc8-44e4-9504-331f59d400ab --json
+```
+
+**Required arguments:**
+
+| Argument | Description |
+| --- | --- |
+| `<id>` | The visitor's UUID, from `neetochat visitors list`. |
+
+This command takes no flags of its own.
+
+```json
+{
+  "data": {
+    "contact": {
+      "id": "2c79a334-0bc8-44e4-9504-331f59d400ab",
+      "name": "Sam Brown",
+      "email": "sam@example.com",
+      "phone_number": null,
+      "user_identifier": "customer-1042",
+      "traits": {
+        "plan": "Pro"
+      },
+      "created_at": "2026-10-08T14:35:46.785Z",
+      "updated_at": "2026-10-08T14:35:46.785Z",
+      "field_values": []
+    }
+  },
+  "breadcrumbs": [
+    {
+      "label": "List",
+      "command": "neetochat visitors list"
+    }
+  ]
+}
+```
+
+## Create a visitor
+
+Adds a visitor to the workspace. Every field is optional; the name defaults
+to `Visitor` when left out.
+
+```bash
+neetochat visitors create \
+  --name "Sam Brown" \
+  --email sam@example.com \
+  --user-identifier customer-1042 \
+  --trait plan=Pro
+```
+
+<VisitorsCreate />
+
+```json
+{
+  "data": {
+    "contact": {
+      "id": "2c79a334-0bc8-44e4-9504-331f59d400ab",
+      "name": "Sam Brown",
+      "email": "sam@example.com",
+      "phone_number": null,
+      "user_identifier": "customer-1042",
+      "traits": {
+        "plan": "Pro"
+      },
+      "created_at": "2026-10-08T14:35:46.785Z",
+      "updated_at": "2026-10-08T14:35:46.785Z",
+      "field_values": []
+    }
+  },
+  "breadcrumbs": [
+    {
+      "label": "Show",
+      "command": "neetochat visitors show <id>"
+    }
+  ]
+}
+```
+
+`--trait` sets a free-form custom attribute and can be repeated for more than
+one, for example `--trait plan=Pro --trait country=US`. `--field` sets a value
+for one of the workspace's contact fields instead, keyed by the field's UUID
+rather than its name: `--field 7f1f1f36-1f0f-4a0e-9b1f-2b0f3c4d5e6f=Enterprise`.
+
+<Tip>
+  With `--quiet` the command prints only the new record's identifier, which is
+  convenient in a script.
+</Tip>

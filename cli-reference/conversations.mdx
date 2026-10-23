@@ -1,0 +1,235 @@
+---
+title: "Conversations"
+description: "List, inspect, start, and update conversations in a workspace."
+---
+
+import ConversationsList from "/snippets/cli/conversations/list.mdx";
+import ConversationsCreate from "/snippets/cli/conversations/create.mdx";
+import ConversationsUpdate from "/snippets/cli/conversations/update.mdx";
+
+Commands for the conversations in a workspace. For fields and response
+details, see the [Conversations API reference](/api-reference/conversations/list).
+For a conversation's messages, see [Messages](/cli-reference/messages).
+
+Samples on this page use `--json`, which is the format you get when output is
+piped as well. On a terminal without that flag the same data prints as a table.
+See [Output formats](/cli/output-formats).
+
+## List conversations
+
+Conversations in the workspace, oldest first by default. `--status` filters
+to one or more statuses, and `--updated-after` returns only conversations
+touched since a timestamp, which is the quickest way to poll for new activity.
+
+```bash
+neetochat conversations list --status open --json
+```
+
+<ConversationsList />
+
+```json
+{
+  "data": [
+    {
+      "id": "de414e85-a1b5-4240-a465-7b32606980ce",
+      "status": "open",
+      "title": "Refund for order #1042",
+      "priority": "low",
+      "channel_name": "b945fd3cd2573017052901d6dbd0832f",
+      "origin_page_url": "https://example.com/pricing",
+      "origin_page_title": "Pricing",
+      "external_id": null,
+      "created_at": "2026-09-23T18:07:53.661Z",
+      "updated_at": "2026-10-05T16:26:58.143Z",
+      "agent": {
+        "id": "05665eee-4602-4317-8f7f-767b04274e5f",
+        "name": "Oliver Smith",
+        "email": "oliver@example.com"
+      },
+      "group": { "id": null, "name": null },
+      "visitor": {
+        "id": "2c79a334-0bc8-44e4-9504-331f59d400ab",
+        "name": "Sam Brown",
+        "email": "sam@example.com",
+        "phone_number": null,
+        "user_identifier": null
+      }
+    }
+  ],
+  "breadcrumbs": [
+    { "label": "Show", "command": "neetochat conversations show <id>" },
+    { "label": "Messages", "command": "neetochat conversations messages list <id>" }
+  ],
+  "pagination": {
+    "current_page": 1,
+    "total_pages": 1,
+    "total_count": 1,
+    "per_page": 15
+  }
+}
+```
+
+## Show a conversation
+
+One conversation by id, when you already have it and want the full record.
+
+```bash
+neetochat conversations show de414e85-a1b5-4240-a465-7b32606980ce --json
+```
+
+**Required arguments:**
+
+| Argument | Description |
+| --- | --- |
+| `<id>` | The conversation's UUID, from `neetochat conversations list`. |
+
+This command takes no flags of its own.
+
+```json
+{
+  "data": {
+    "conversation": {
+      "id": "de414e85-a1b5-4240-a465-7b32606980ce",
+      "status": "open",
+      "title": "Refund for order #1042",
+      "priority": "low",
+      "channel_name": "b945fd3cd2573017052901d6dbd0832f",
+      "origin_page_url": "https://example.com/pricing",
+      "origin_page_title": "Pricing",
+      "external_id": null,
+      "created_at": "2026-09-23T18:07:53.661Z",
+      "updated_at": "2026-10-05T16:26:58.143Z",
+      "agent": {
+        "id": "05665eee-4602-4317-8f7f-767b04274e5f",
+        "name": "Oliver Smith",
+        "email": "oliver@example.com"
+      },
+      "group": { "id": null, "name": null },
+      "visitor": {
+        "id": "2c79a334-0bc8-44e4-9504-331f59d400ab",
+        "name": "Sam Brown",
+        "email": "sam@example.com",
+        "phone_number": null,
+        "user_identifier": null
+      }
+    }
+  },
+  "breadcrumbs": [
+    { "label": "List", "command": "neetochat conversations list" },
+    { "label": "Messages", "command": "neetochat conversations messages list de414e85-a1b5-4240-a465-7b32606980ce" }
+  ]
+}
+```
+
+## Add a conversation
+
+Opens a conversation on behalf of a contact, with an opening message. The
+contact is matched by `user-identifier` first; if that matches an existing
+contact, `email` is ignored even if it names a different one. Only when
+`user-identifier` is omitted or matches nobody does `email` get used to find
+or create the contact.
+
+```bash
+neetochat conversations create \
+  --email sam@example.com \
+  --message "Hi, I need help with a refund." \
+  --json
+```
+
+<ConversationsCreate />
+
+```json
+{
+  "data": {
+    "conversation": {
+      "id": "de414e85-a1b5-4240-a465-7b32606980ce",
+      "status": "new",
+      "title": null,
+      "priority": null,
+      "channel_name": "b945fd3cd2573017052901d6dbd0832f",
+      "origin_page_url": null,
+      "origin_page_title": null,
+      "external_id": null,
+      "created_at": "2026-10-23T10:12:00.000Z",
+      "updated_at": "2026-10-23T10:12:00.000Z",
+      "agent": { "id": null, "name": null, "email": null },
+      "group": { "id": null, "name": null },
+      "visitor": {
+        "id": "2c79a334-0bc8-44e4-9504-331f59d400ab",
+        "name": "Sam Brown",
+        "email": "sam@example.com",
+        "phone_number": null,
+        "user_identifier": null
+      }
+    }
+  },
+  "breadcrumbs": [
+    { "label": "Show", "command": "neetochat conversations show <id>" }
+  ]
+}
+```
+
+`--trait` and `--ticket-field` can be repeated for more than one, for example
+`--trait plan=Pro --trait country=US`. `--tag` can also be repeated, and tags
+that don't exist yet are created. `--external-id` makes the request safe to
+retry: a conversation with the same id already in the workspace is returned
+unchanged instead of creating a second one.
+
+<Tip>
+  With `--quiet` the command prints only the new record's identifier, which is
+  convenient in a script.
+</Tip>
+
+## Update a conversation
+
+Changes only the fields you pass. Everything else is left alone.
+
+```bash
+neetochat conversations update de414e85-a1b5-4240-a465-7b32606980ce \
+  --status closed \
+  --json
+```
+
+**Required arguments:**
+
+| Argument | Description |
+| --- | --- |
+| `<id>` | The conversation's UUID, from `neetochat conversations list`. |
+
+<ConversationsUpdate />
+
+```json
+{
+  "data": {
+    "conversation": {
+      "id": "de414e85-a1b5-4240-a465-7b32606980ce",
+      "status": "closed",
+      "title": "Refund for order #1042",
+      "priority": "low",
+      "channel_name": "b945fd3cd2573017052901d6dbd0832f",
+      "origin_page_url": "https://example.com/pricing",
+      "origin_page_title": "Pricing",
+      "external_id": null,
+      "created_at": "2026-09-23T18:07:53.661Z",
+      "updated_at": "2026-10-23T10:15:00.000Z",
+      "agent": {
+        "id": "05665eee-4602-4317-8f7f-767b04274e5f",
+        "name": "Oliver Smith",
+        "email": "oliver@example.com"
+      },
+      "group": { "id": null, "name": null },
+      "visitor": {
+        "id": "2c79a334-0bc8-44e4-9504-331f59d400ab",
+        "name": "Sam Brown",
+        "email": "sam@example.com",
+        "phone_number": null,
+        "user_identifier": null
+      }
+    }
+  }
+}
+```
+
+`--tag` replaces the conversation's current tags rather than adding to them.
+Pass `--read` or `--read=false` on its own, or along with other fields, to
+mark the conversation as read or leave it as it is.

@@ -71,13 +71,15 @@ neetochat team-members list --json
 
 One member by id, when you already have it and want the full record.
 
-### Required arguments
-
-- `<id>` - the team member's UUID, from `neetochat team-members list`.
-
 ```bash
 neetochat team-members show 13c02be6-8bd4-4dda-b9e6-07df53feb8a4 --json
 ```
+
+**Required arguments:**
+
+| Argument | Description |
+| --- | --- |
+| `<id>` | The team member's UUID, from `neetochat team-members list`. |
 
 This command takes no flags of its own.
 
@@ -98,7 +100,7 @@ This command takes no flags of its own.
 }
 ```
 
-## Invite team members
+## Add team members
 
 Adds one or more people to the workspace. An address that already belongs to the
 workspace is reactivated instead, and its role is overwritten.
@@ -134,16 +136,18 @@ Pass `--send-invitation-email=false` to add people without emailing them.
 
 Changes only the fields you pass. Everything else is left alone.
 
-### Required arguments
-
-- `<id>` - the team member's UUID, from `neetochat team-members list`.
-
 ```bash
 neetochat team-members update 13c02be6-8bd4-4dda-b9e6-07df53feb8a4 \
   --time-zone America/New_York \
   --role Admin \
   --json
 ```
+
+**Required arguments:**
+
+| Argument | Description |
+| --- | --- |
+| `<id>` | The team member's UUID, from `neetochat team-members list`. |
 
 <TeamMembersUpdate />
 
@@ -171,13 +175,15 @@ workspace role exactly, as it does on `create`.
 
 Deactivates the member. They lose access.
 
-### Required arguments
-
-- `<id>` - the team member's UUID, from `neetochat team-members list`.
-
 ```bash
 neetochat team-members delete 13c02be6-8bd4-4dda-b9e6-07df53feb8a4
 ```
+
+**Required arguments:**
+
+| Argument | Description |
+| --- | --- |
+| `<id>` | The team member's UUID, from `neetochat team-members list`. |
 
 This command takes no flags of its own.
 

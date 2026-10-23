@@ -1,0 +1,175 @@
+---
+title: "Messages"
+description: "List, inspect, and send messages and notes in a conversation."
+---
+
+import MessagesList from "/snippets/cli/conversations/messages/list.mdx";
+import MessagesCreate from "/snippets/cli/conversations/messages/create.mdx";
+
+Commands for the messages in a conversation. They sit under
+`neetochat conversations messages`, since a message always belongs to a
+conversation. For fields and response details, see the
+[Messages API reference](/api-reference/messages/list). For the conversation
+itself, see [Conversations](/cli-reference/conversations).
+
+Samples on this page use `--json`, which is the format you get when output is
+piped as well. On a terminal without that flag the same data prints as a table.
+See [Output formats](/cli/output-formats).
+
+## List messages
+
+Messages in a conversation, oldest first. Internal notes and messages created
+by NeetoChat are included.
+
+```bash
+neetochat conversations messages list de414e85-a1b5-4240-a465-7b32606980ce --json
+```
+
+**Required arguments:**
+
+| Argument | Description |
+| --- | --- |
+| `<conversation-id>` | The conversation's UUID, from `neetochat conversations list`. |
+
+<MessagesList />
+
+```json
+{
+  "data": [
+    {
+      "id": "1bf689fc-9f92-4e39-9f71-4a97078d2b8f",
+      "body": "<p>Thanks, we have processed your refund.</p>",
+      "kind": "user_message",
+      "status": "read",
+      "external_id": null,
+      "created_at": "2026-10-05T16:26:57.912Z",
+      "updated_at": "2026-10-05T16:26:57.912Z",
+      "sender": {
+        "id": "05665eee-4602-4317-8f7f-767b04274e5f",
+        "name": "Oliver Smith",
+        "email": "oliver@example.com",
+        "type": "User"
+      },
+      "attachments": [],
+      "message_gif": null
+    }
+  ],
+  "breadcrumbs": [
+    {
+      "label": "Show",
+      "command": "neetochat conversations messages show de414e85-a1b5-4240-a465-7b32606980ce <message-id>"
+    }
+  ],
+  "pagination": {
+    "current_page": 1,
+    "total_pages": 1,
+    "total_count": 1,
+    "per_page": 15
+  }
+}
+```
+
+## Show a message
+
+One message in a conversation, when you already have its id and want the
+full record.
+
+```bash
+neetochat conversations messages show \
+  de414e85-a1b5-4240-a465-7b32606980ce \
+  1bf689fc-9f92-4e39-9f71-4a97078d2b8f \
+  --json
+```
+
+**Required arguments:**
+
+| Argument | Description |
+| --- | --- |
+| `<conversation-id>` | The conversation's UUID, from `neetochat conversations list`. |
+| `<message-id>` | The message's UUID, from `neetochat conversations messages list`. |
+
+This command takes no flags of its own.
+
+```json
+{
+  "data": {
+    "message": {
+      "id": "1bf689fc-9f92-4e39-9f71-4a97078d2b8f",
+      "body": "<p>Thanks, we have processed your refund.</p>",
+      "kind": "user_message",
+      "status": "read",
+      "external_id": null,
+      "created_at": "2026-10-05T16:26:57.912Z",
+      "updated_at": "2026-10-05T16:26:57.912Z",
+      "sender": {
+        "id": "05665eee-4602-4317-8f7f-767b04274e5f",
+        "name": "Oliver Smith",
+        "email": "oliver@example.com",
+        "type": "User"
+      },
+      "attachments": [],
+      "message_gif": null
+    }
+  }
+}
+```
+
+A message created by NeetoChat itself, such as a status change, has a
+`sender` with every field `null`.
+
+## Add a message to a conversation
+
+Sends a message or an internal note. The sender is resolved from
+`--sender-email`: an active team member's address sends a reply from that
+team member, and any other address sends it as a message from the contact,
+creating a new contact when none exists with that email.
+
+```bash
+neetochat conversations messages create de414e85-a1b5-4240-a465-7b32606980ce \
+  --body "Thanks, we have processed your refund." \
+  --sender-email oliver@example.com \
+  --json
+```
+
+**Required arguments:**
+
+| Argument | Description |
+| --- | --- |
+| `<conversation-id>` | The conversation's UUID, from `neetochat conversations list`. |
+
+<MessagesCreate />
+
+```json
+{
+  "data": {
+    "message": {
+      "id": "1bf689fc-9f92-4e39-9f71-4a97078d2b8f",
+      "body": "Thanks, we have processed your refund.",
+      "kind": "user_message",
+      "status": "read",
+      "external_id": null,
+      "created_at": "2026-10-23T10:20:00.000Z",
+      "updated_at": "2026-10-23T10:20:00.000Z",
+      "sender": {
+        "id": "05665eee-4602-4317-8f7f-767b04274e5f",
+        "name": "Oliver Smith",
+        "email": "oliver@example.com",
+        "type": "User"
+      },
+      "attachments": [],
+      "message_gif": null
+    }
+  }
+}
+```
+
+`--kind note` adds an internal note that only team members can see; `--mention`
+can then be repeated to mention team members by email, and is rejected on a
+`user_message`. `--external-id` makes the request safe to retry: a message
+with the same id already in the workspace is returned unchanged instead of
+creating a second one.
+
+<Tip>
+  With `--quiet` the command prints only the new record's identifier, which is
+  convenient in a script.
+</Tip>

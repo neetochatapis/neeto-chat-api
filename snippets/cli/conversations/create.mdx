@@ -1,0 +1,18 @@
+| Flag | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `--email` | `string` | Yes |  | Visitor email |
+| `--name` | `string` |  |  | Visitor name |
+| `--phone-number` | `string` |  |  | Visitor phone number |
+| `--user-identifier` | `string` |  |  | Visitor identifier from your own system |
+| `--trait` | `stringToString` |  | `[]` | Visitor trait as key=value (repeat the flag for more than one) |
+| `--message` | `string` | Yes |  | The opening message body |
+| `--title` | `string` |  |  | Conversation title |
+| `--status` | `string` |  |  | Conversation status |
+| `--priority` | `string` |  |  | Conversation priority |
+| `--origin-page-url` | `string` |  |  | URL of the page the visitor started the chat from |
+| `--origin-page-title` | `string` |  |  | Title of the page the visitor started the chat from |
+| `--assignee-email` | `string` |  |  | Agent email to assign |
+| `--group-name` | `string` |  |  | Group name to assign |
+| `--tag` | `stringArray` |  | `[]` | Tag name to apply (repeat the flag for more than one) |
+| `--ticket-field` | `stringToString` |  | `[]` | Custom field value as name=value (repeat the flag for more than one) |
+| `--external-id` | `string` |  |  | Your own identifier for this conversation, for idempotent creation |

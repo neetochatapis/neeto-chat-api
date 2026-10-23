@@ -1,0 +1,7 @@
+| Flag | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `--body` | `string` | Yes |  | Message body |
+| `--sender-email` | `string` | Yes |  | Email of the sender (an agent or the visitor) |
+| `--kind` | `string` |  | `user_message` | Message kind: user_message or note |
+| `--mention` | `stringArray` |  | `[]` | Agent email to mention (note only; repeat the flag for more than one) |
+| `--external-id` | `string` |  |  | Your own identifier for this message, for idempotent creation |

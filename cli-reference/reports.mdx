@@ -1,0 +1,136 @@
+---
+title: "Reports"
+description: "View conversation volume, customer satisfaction, and group performance over a date range."
+---
+
+import ReportsConversationsFlags from "/snippets/cli/reports/conversations.mdx";
+import ReportsCustomerSatisfactionsFlags from "/snippets/cli/reports/customer-satisfactions.mdx";
+import ReportsGroupsFlags from "/snippets/cli/reports/groups.mdx";
+
+A report aggregates conversation activity over a date range. For fields and
+response details, see the [Reports API reference](/api-reference/reports/get-conversations).
+
+## Choose the date range
+
+Every report takes the same three range flags. Pass `--range-type` for a named
+window, such as `last_7_days` or `last_30_days`. Pass `--start-date` and
+`--end-date` together for an exact range instead, with or without
+`--range-type custom_duration`:
+
+```bash
+neetochat reports conversations --range-type last_30_days
+neetochat reports conversations --start-date 2026-07-01 --end-date 2026-07-31
+```
+
+Dates are `YYYY-MM-DD`. With all three flags omitted, the range defaults to
+`all_time`. Every figure compared against the previous period of the same
+length comes back as `present`, `previous` and `change_percentage`.
+
+## Show the conversations report
+
+Conversation volume over the range: opened, closed, replied to, and left
+unassigned, each compared against the immediately preceding period of the
+same length.
+
+```bash
+neetochat reports conversations --range-type last_30_days --json
+```
+
+<ReportsConversationsFlags />
+
+```json
+{
+  "data": [
+    {
+      "name": "open_chats_count",
+      "value": { "present": 30, "previous": 20, "change_percentage": 50.0 }
+    },
+    {
+      "name": "closed_chats_count",
+      "value": { "present": 8, "previous": 5, "change_percentage": 60.0 }
+    },
+    {
+      "name": "new_chats_count",
+      "value": { "present": 72, "previous": 60, "change_percentage": 20.0 }
+    },
+    {
+      "name": "replies_sent_count",
+      "value": { "present": 75, "previous": 50, "change_percentage": 50.0 }
+    },
+    {
+      "name": "replied_chats_count",
+      "value": { "present": 40, "previous": 32, "change_percentage": 25.0 }
+    },
+    {
+      "name": "unassigned_chats_count",
+      "value": { "present": 11, "previous": 8, "change_percentage": 37.5 }
+    }
+  ]
+}
+```
+
+Without `--json`, the pretty output is a table with one row per metric.
+
+## Show the customer satisfaction report
+
+How customers rated conversations on each day of the range, broken down into
+`good`, `okay` and `bad`. `data` is `null` when the workspace has no rating
+question configured on its post-chat survey.
+
+```bash
+neetochat reports customer-satisfactions --range-type last_7_days --json
+```
+
+<ReportsCustomerSatisfactionsFlags />
+
+```json
+{
+  "data": {
+    "dates": ["2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17"],
+    "data": [
+      { "name": "good", "values": [3, 2, 4, 3] },
+      { "name": "okay", "values": [1, 2, 1, 1] },
+      { "name": "bad", "values": [1, 1, 1, 1] }
+    ],
+    "percentages": { "good": 57, "okay": 24, "bad": 19 }
+  }
+}
+```
+
+Without `--json`, the pretty output is a table with one row per date and one
+column per rating.
+
+## Show the groups report
+
+The same conversation metrics as the conversations report, broken down by
+group instead of for the whole workspace. All groups are returned; the
+response is not paginated.
+
+```bash
+neetochat reports groups --range-type last_30_days --json
+```
+
+<ReportsGroupsFlags />
+
+```json
+{
+  "data": [
+    {
+      "id": "42052a48-321b-4e6e-9c38-43b6fa467973",
+      "name": "Customer Support",
+      "assigned_conversations_count": { "present": 0, "previous": 0, "change_percentage": null },
+      "open_conversations_count": { "present": 0, "previous": 0, "change_percentage": null },
+      "closed_conversations_count": { "present": 0, "previous": 0, "change_percentage": null }
+    },
+    {
+      "id": "abd828dd-bcfe-4197-ac1f-d7ca796b3ae0",
+      "name": "Sales",
+      "assigned_conversations_count": { "present": 3, "previous": 0, "change_percentage": null },
+      "open_conversations_count": { "present": 1, "previous": 0, "change_percentage": null },
+      "closed_conversations_count": { "present": 0, "previous": 0, "change_percentage": null }
+    }
+  ]
+}
+```
+
+Without `--json`, the pretty output is a table with one row per group.

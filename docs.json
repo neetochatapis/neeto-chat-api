@@ -122,7 +122,11 @@
             "icon": "terminal",
             "pages": [
               "cli-reference/overview",
+              "cli-reference/conversations",
+              "cli-reference/messages",
+              "cli-reference/reports",
               "cli-reference/team-members",
+              "cli-reference/visitors",
               "cli-reference/utility"
             ]
           }

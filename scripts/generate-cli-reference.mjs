@@ -80,7 +80,11 @@ for (const group of catalog) {
 }
 
 const groupToPage = {
+  "neetochat conversations messages": "/cli-reference/messages",
+  "neetochat conversations": "/cli-reference/conversations",
+  "neetochat reports": "/cli-reference/reports",
   "neetochat team-members": "/cli-reference/team-members",
+  "neetochat visitors": "/cli-reference/visitors",
 };
 const utilityPage = "/cli-reference/utility";
 
@@ -95,10 +99,17 @@ const utilityGroups = new Set([
 ]);
 
 const warnings = [];
+const warnedGroups = new Set();
 
-const resolvePage = (groupCommand) => {
-  if (groupToPage[groupCommand]) return groupToPage[groupCommand];
-  if (!utilityGroups.has(groupCommand)) {
+const resolvePage = (command) => {
+  const prefix = Object.keys(groupToPage)
+    .filter((p) => command === p || command.startsWith(`${p} `))
+    .sort((a, b) => b.length - a.length)[0];
+  if (prefix) return groupToPage[prefix];
+
+  const groupCommand = command.split(/\s+/).slice(0, 2).join(" ");
+  if (!utilityGroups.has(groupCommand) && !warnedGroups.has(groupCommand)) {
+    warnedGroups.add(groupCommand);
     warnings.push(
       `No page mapping for group "${groupCommand}"; linking to ${utilityPage}. ` +
         "Add it to groupToPage in scripts/generate-cli-reference.mjs.",
@@ -108,10 +119,9 @@ const resolvePage = (groupCommand) => {
 };
 
 const overviewSection = (group) => {
-  const page = resolvePage(group.command);
   const title = group.command.replace(/^neetochat\s+/, "");
   const rows = group.commands
-    .map((c) => `| [\`${c.command}\`](${page}) | ${escapeCell(c.description)} |`)
+    .map((c) => `| [\`${c.command}\`](${resolvePage(c.command)}) | ${escapeCell(c.description)} |`)
     .join("\n");
   return (
     `### ${title}\n\n` +
@@ -135,13 +145,26 @@ const globalFlagsSection =
   "| Flag | Description |\n| --- | --- |\n" +
   globalFlags.map((f) => `| \`--${f.name}\` | ${escapeCell(f.description)} |`).join("\n");
 
+const trailingGroups = [
+  "neetochat conversations",
+  "neetochat reports",
+  "neetochat visitors",
+  "neetochat team-members",
+];
+const orderedOverviewGroups = [
+  ...overviewGroups.filter((g) => !trailingGroups.includes(g.command)),
+  ...trailingGroups
+    .map((command) => overviewGroups.find((g) => g.command === command))
+    .filter(Boolean),
+];
+
 const overview =
   "---\n" +
   'title: "Commands overview"\n' +
   'description: "Every neetochat command grouped by resource, with links to the full reference."\n' +
   "---\n\n" +
   `${globalFlagsSection}\n\n` +
-  overviewGroups.map(overviewSection).join("\n");
+  orderedOverviewGroups.map(overviewSection).join("\n");
 
 mkdirSync(dirname(overviewPath), { recursive: true });
 writeFileSync(overviewPath, overview);
