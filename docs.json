@@ -131,32 +131,15 @@
             ]
           }
         ]
-      },
-      {
-        "tab": "MCP",
-        "icon": "plug",
-        "groups": [
-          {
-            "group": "Getting Started",
-            "icon": "rocket",
-            "pages": [
-              "mcp/introduction",
-              "mcp/workspace-subdomain",
-              "mcp/authentication",
-              "mcp/connect",
-              "mcp/examples",
-              "mcp/troubleshooting"
-            ]
-          },
-          {
-            "group": "Reference",
-            "icon": "wrench",
-            "pages": ["mcp/tools"]
-          }
-        ]
       }
     ]
   },
+  "redirects": [
+    {
+      "source": "/mcp/:slug*",
+      "destination": "https://www.neeto.com/neetochat/mcp-and-cli"
+    }
+  ],
   "api": {
     "params": {
       "expanded": "all"
